@@ -1,0 +1,22 @@
+<?xml version='1.0'?>
+<PapyrusProject xmlns="PapyrusProject.xsd"
+   Flags="Institute_Papyrus_Flags.flg"
+   Output=".\Scripts"
+   Asm="Discard"
+   Optimize="true"
+   Release="false"
+   Final="false"
+>
+	<Imports>
+		<Import>..\..\Stock Game\data\Scripts\Source\Base</Import>
+		<Import>..\SS2 Script Sources (Dev)\Scripts\Source\User</Import>
+		<Import>..\WSFW Script Sources (Dev)\Scripts\Source\User</Import>
+		<Import>..\SUP F4SE\Scripts\Source\User</Import>
+		<Import>..\Papyrus Common Library\Scripts\Source\User</Import>
+		<Import>..\Garden of Eden Papyrus Script Extender\Scripts\Source\User</Import>
+		<Import>.\Scripts\Source\User</Import>
+	</Imports>
+	<Folders>
+    	<Folder>.\Scripts\Source\User</Folder>
+	</Folders>
+</PapyrusProject>
