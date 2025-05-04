@@ -27,6 +27,7 @@ Group ObjectPositioning
 	WorldObject Property Plot2x2Position Auto Const Mandatory
 	WorldObject Property Plot3x3Position Auto Const Mandatory
 	WorldObject Property PlotIntPosition Auto Const Mandatory
+	WorldObject Property FoundationPosition Auto Const Mandatory
 EndGroup
 
 Group PlotSizeKeywords
@@ -90,6 +91,7 @@ Struct IndexedAddon
 	SimSettlementsV2:Weapons:BuildingPlan[] BuildingPlans2x2
 	SimSettlementsV2:Weapons:BuildingPlan[] BuildingPlans3x3
 	SimSettlementsV2:Weapons:BuildingPlan[] BuildingPlansInt
+	SimSettlementsV2:MiscObjects:Foundation[] Foundations
 EndStruct
 
 ;; --------------------------------------------------
@@ -138,8 +140,10 @@ Function IndexAddons(bool bForce)
 
 		bIndexInProgress = false
 		Debug.TraceUser(sLogName, "Finished Indexing")
+		Debug.MessageBox("Finished Indexing")
 	else
 		Debug.TraceUser(sLogName, "Index already populated")
+		Debug.MessageBox("Index already populated")
 	endIf
 EndFunction
 
@@ -198,6 +202,13 @@ Function IndexAddonItem(Form thisItem)
 		if thisItem2 != none
 			Debug.TraceUser(sLogName, "Added BuildingPlan "+thisItem2+" to "+sAddonFilename+"'s index")
 		endIf
+
+	; foundations
+	elseif thisItem as SimSettlementsV2:MiscObjects:Foundation
+		SimSettlementsV2:MiscObjects:Foundation thisItem2 = thisItem as SimSettlementsV2:MiscObjects:Foundation
+		thisIndexedAddon.Foundations.Add(thisItem2)
+		Debug.TraceUser(sLogName, "Added Foundation "+thisItem2+" to "+sAddonFilename+"'s index")
+
 	endIf
 EndFunction
 
@@ -212,6 +223,7 @@ IndexedAddon Function GetIndexedAddon(string sAddonFilename)
 		thisIndexedAddon.BuildingPlans2x2 = new SimSettlementsV2:Weapons:BuildingPlan[0]
 		thisIndexedAddon.BuildingPlans3x3 = new SimSettlementsV2:Weapons:BuildingPlan[0]
 		thisIndexedAddon.BuildingPlansInt = new SimSettlementsV2:Weapons:BuildingPlan[0]
+		thisIndexedAddon.Foundations = new SimSettlementsV2:MiscObjects:Foundation[0]
 		indexedAddons.Add(thisIndexedAddon)
 		Debug.TraceUser(sLogName, "Added Addon "+sAddonFilename+" to index")
 	else
@@ -219,7 +231,6 @@ IndexedAddon Function GetIndexedAddon(string sAddonFilename)
 	endIf
 	return thisIndexedAddon
 EndFunction
-
 ;; --------------------------------------------------
 ;; Capture Functions
 ;; --------------------------------------------------
@@ -227,10 +238,7 @@ EndFunction
 ;; Flags
 
 Function CaptureFlags(string sAddonFilename = "")
-	if bIndexInProgress
-		Debug.MessageBox("Indexing is still running")
-		return
-	endIf
+	CheckIndexing()
 
 	Debug.TraceUser(sLogName, "CaptureFlags("+sAddonFilename+") called")
 
@@ -243,7 +251,7 @@ Function CaptureFlags(string sAddonFilename = "")
 			CaptureFlag(thisIndexedAddon.Flags[i])
 			i -= 1
 		endWhile
-	else ; no plugin specified, do all indexed flags
+	else ; no plugin specified, do all indexed items
 		int j = indexedAddons.Length - 1
 		while j >= 0
 			int i = indexedAddons[j].Flags.Length - 1
@@ -261,10 +269,7 @@ Function CaptureFlags(string sAddonFilename = "")
 EndFunction
 
 Function CaptureFlag(SimSettlementsV2:Armors:ThemeDefinition_Flags thisForm)
-	if bIndexInProgress
-		Debug.MessageBox("Indexing is still running")
-		return
-	endIf
+	CheckIndexing()
 
 	if thisForm.FlagWall != none
 		string sFormkey = GetFormKey(thisForm)
@@ -273,9 +278,9 @@ Function CaptureFlag(SimSettlementsV2:Armors:ThemeDefinition_Flags thisForm)
 		WorldObject thisPosition = FlagPosition
 		thisPosition.ObjectForm = thisForm.FlagWall
 
-		ObjectReference refFlag = WorkshopFramework:WSFW_API.CreateSettlementObject(thisPosition, refWorkshop)
+		ObjectReference refObj = WorkshopFramework:WSFW_API.CreateSettlementObject(thisPosition, refWorkshop)
 		TakeScreenshot(sFormkey)
-		WorkshopFramework:WSFW_API.RemoveSettlementObject(refFlag)
+		WorkshopFramework:WSFW_API.RemoveSettlementObject(refObj)
 		Utility.Wait(1)
 	else
 		Debug.TraceUser(sLogName, "Flag is missing FlagWall property: "+thisForm)
@@ -286,10 +291,7 @@ EndFunction
 
 ; iSize: 1 = 1x1, 2 = 2x2, 3 = 3x3, 4 = Int
 Function CaptureBuildingPlans(int iSize, string sAddonFilename = "")
-	if bIndexInProgress
-		Debug.MessageBox("Indexing is still running")
-		return
-	endIf
+	CheckIndexing()
 	Debug.TraceUser(sLogName, "CaptureBuildingPlans("+iSize+","+sAddonFilename+") called")
 
 	FreezeState(true)
@@ -315,7 +317,7 @@ Function CaptureBuildingPlans(int iSize, string sAddonFilename = "")
 			CaptureBuildingPlan(indexedPlans[i])
 			i -= 1
 		endWhile
-	else ; no plugin specified, do all indexed flags
+	else ; no plugin specified, do all indexed items
 		int j = indexedAddons.Length - 1
 		while j >= 0
 			if iSize == 1
@@ -347,10 +349,7 @@ EndFunction
 Form waitingBuildingLevelPlan
 
 Function CaptureBuildingPlan(Form thisForm)
-	if bIndexInProgress
-		Debug.MessageBox("Indexing is still running")
-		return
-	endIf
+	CheckIndexing()
 
 	if !(thisForm as SimSettlementsV2:Weapons:BuildingPlan)
 		Debug.TraceUser(sLogName, "Form "+thisForm+" is not BuildingPlan: ")
@@ -401,6 +400,57 @@ Event SimSettlementsV2:ObjectReferences:SimPlot.PlotLevelChanged(SimSettlementsV
 	waitingBuildingLevelPlan = none
 EndEvent
 
+;; Foundations
+
+Function CaptureFoundations(string sAddonFilename = "")
+	CheckIndexing()
+
+	Debug.TraceUser(sLogName, "CaptureFoundations("+sAddonFilename+") called")
+
+	FreezeState(true)
+
+	if sAddonFilename != "" ; plugin specified
+		IndexedAddon thisIndexedAddon = GetIndexedAddon(sAddonFilename)
+		int i = thisIndexedAddon.Foundations.Length - 1
+		while i >= 0
+			CaptureFoundation(thisIndexedAddon.Foundations[i])
+			i -= 1
+		endWhile
+	else ; no plugin specified, do all indexed items
+		int j = indexedAddons.Length - 1
+		while j >= 0
+			int i = indexedAddons[j].Foundations.Length - 1
+			while i >= 0
+				CaptureFoundation(indexedAddons[j].Foundations[i])
+				i -= 1
+			endWhile
+			j -= 1
+		endWhile
+	endIf
+
+	FreezeState(false)
+	Debug.TraceUser(sLogName, "CaptureFoundations("+sAddonFilename+") complete")
+	Debug.MessageBox("CaptureFoundations("+sAddonFilename+") complete")
+EndFunction
+
+Function CaptureFoundation(SimSettlementsV2:MiscObjects:Foundation thisForm)
+	CheckIndexing()
+
+	WorldObject thisPosition = FoundationPosition
+	thisPosition.ObjectForm = GetWorldObjectForm(thisForm.SpawnData)
+	if thisPosition.ObjectForm == none
+		Debug.TraceUser(sLogName, "Foundation is missing SpawnData properties: "+thisForm)
+		return
+	endIf
+
+	string sFormkey = GetFormKey(thisForm)
+	Debug.TraceUser(sLogName, "Capturing foundation: "+sFormkey)
+
+	ObjectReference refObj = WorkshopFramework:WSFW_API.CreateSettlementObject(thisPosition, refWorkshop)
+	TakeScreenshot(sFormkey)
+	WorkshopFramework:WSFW_API.RemoveSettlementObject(refObj)
+	Utility.Wait(1)
+EndFunction
 
 ;; --------------------------------------------------
 ;; Screenshot Functions
@@ -444,6 +494,21 @@ string Function GetFormKey(Form formObj)
 	string modName = GetModName(formObj)
 	string result = hexID+"-"+modName
 	return result
+EndFunction
+
+Form Function GetWorldObjectForm(WorldObject thisWorldObject)
+	Form thisForm = thisWorldObject.ObjectForm
+	if thisWorldObject.iFormID > -1 && thisWorldObject.sPluginName != ""
+		thisForm = Game.GetFormFromFile(thisWorldObject.iFormID, thisWorldObject.sPluginName)
+	endIf
+	return thisForm
+EndFunction
+
+Function CheckIndexing()
+	if bIndexInProgress
+		Debug.MessageBox("Indexing is still running")
+		return
+	endIf
 EndFunction
 
 ; there HAS to be a better way to do this...
