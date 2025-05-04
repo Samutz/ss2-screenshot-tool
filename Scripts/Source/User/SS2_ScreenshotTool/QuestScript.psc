@@ -17,6 +17,8 @@ Group ScreenshotSettings
 	Weather Property ClearWeather Auto Const Mandatory
 	GlobalVariable Property GameHour Auto Mandatory
 	float Property FreezeTime = 12.0 Auto Const
+	float Property ImageWidth = 1920.0 Auto Const
+	float Property ImageHeight = 1080.0 Auto Const
 EndGroup
 
 Group ObjectPositioning
@@ -419,7 +421,7 @@ Function TakeScreenshot(string name)
     GameHour.SetValue(FreezeTime)
     ClearWeather.ForceActive()
     Utility.Wait(0.1)
-    CaptureScreenshotAlt(sLogName, name+".jpg", 0, 1920, 0, 1080, 0, 100)
+    CaptureScreenshotAlt(sLogName, name+".jpg", 0, ImageWidth, 0, ImageHeight, 0, 100)
 EndFunction
 
 ;; --------------------------------------------------
