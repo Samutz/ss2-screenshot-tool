@@ -302,9 +302,9 @@ Function CaptureBuildingPlans(int iSize, string sAddonFilename = "")
 			indexedPlans = thisIndexedAddon.BuildingPlans1x1
 		elseif iSize == 2
 			indexedPlans = thisIndexedAddon.BuildingPlans2x2
-		elseif iSize == 2
+		elseif iSize == 3
 			indexedPlans = thisIndexedAddon.BuildingPlans3x3
-		elseif iSize == 2
+		elseif iSize == 4
 			indexedPlans = thisIndexedAddon.BuildingPlansInt
 		else
 			Debug.MessageBox("Invalid size: "+iSize)
@@ -322,9 +322,9 @@ Function CaptureBuildingPlans(int iSize, string sAddonFilename = "")
 				indexedPlans = indexedAddons[j].BuildingPlans1x1
 			elseif iSize == 2
 				indexedPlans = indexedAddons[j].BuildingPlans2x2
-			elseif iSize == 2
+			elseif iSize == 3
 				indexedPlans = indexedAddons[j].BuildingPlans3x3
-			elseif iSize == 2
+			elseif iSize == 4
 				indexedPlans = indexedAddons[j].BuildingPlansInt
 			else
 				Debug.MessageBox("Invalid size: "+iSize)
