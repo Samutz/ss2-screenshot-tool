@@ -1,0 +1,80 @@
+scriptname SS2_ScreenshotTool:Quests:Main extends Quest
+
+import SUP_F4SE
+import System:Form
+import System:Strings
+import GardenOfEden
+
+import WorkshopFramework:Library:DataStructures
+import WorkshopDataScript
+
+Group General
+	SimSettlementsV2:Quests:SS2Main Property SS2Main Auto Const Mandatory
+	SS2_ScreenshotTool:Quests:Indexer Property questIndexer Auto Const Mandatory
+EndGroup
+
+Group ScreenshotSettings
+	Weather Property ClearWeather Auto Const Mandatory
+	GlobalVariable Property GameHour Auto Mandatory
+	float Property FreezeTime = 12.0 Auto Const
+	float Property ImageWidth = 1920.0 Auto Const
+	float Property ImageHeight = 1080.0 Auto Const
+EndGroup
+
+Actor refPlayer
+string sLogName = "SS2_ScreenshotTool"
+
+;; --------------------------------------------------
+;; Setup
+;; --------------------------------------------------
+
+Event OnQuestInit()
+	Debug.OpenUserLog(sLogName)
+	Log("Main Quest Started")
+	refPlayer = Game.GetPlayer()
+	RegisterForRemoteEvent(refPlayer, "OnPlayerLoadGame")
+	StartUp()
+EndEvent
+
+Event Actor.OnPlayerLoadGame(Actor akActorRef)
+	Debug.OpenUserLog(sLogName)
+	StartUp()
+EndEvent
+
+Function StartUp()
+
+EndFunction
+
+Function Log(string sMessage)
+	Debug.TraceUser(sLogName, sMessage)
+EndFunction
+
+;; --------------------------------------------------
+;; Screenshot Functions
+;; --------------------------------------------------
+
+Function FreezeState(bool freeze)
+	; not sure if this actually works
+	if freeze
+		Debug.SetGodMode(true)
+		Utility.SetINIBool("bDisableAllAI:General", true)
+		GameHour.SetValue(FreezeTime)
+		ClearWeather.ForceActive()
+	else
+		Debug.SetGodMode(false)
+		Utility.SetINIBool("bDisableAllAI:General", false)
+	endIf
+EndFunction
+
+Function TakeScreenshot(string name)
+    GameHour.SetValue(FreezeTime)
+    ClearWeather.ForceActive()
+    Utility.Wait(0.1)
+    CaptureScreenshotAlt(sLogName, name+".jpg", 0, ImageWidth, 0, ImageHeight, 0, 100)
+EndFunction
+
+;; --------------------------------------------------
+;; Miscellaneous Functions
+;; --------------------------------------------------
+
+; there HAS to be a better way to do this...
