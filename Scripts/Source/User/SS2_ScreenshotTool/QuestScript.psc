@@ -257,6 +257,7 @@ Function CaptureFlags(string sAddonFilename = "")
 
 	FreezeState(false)
 	Debug.TraceUser(sLogName, "CaptureFlags("+sAddonFilename+") complete")
+	Debug.MessageBox("CaptureFlags("+sAddonFilename+") complete")
 EndFunction
 
 Function CaptureFlag(SimSettlementsV2:Armors:ThemeDefinition_Flags thisForm)
@@ -339,7 +340,8 @@ Function CaptureBuildingPlans(int iSize, string sAddonFilename = "")
 	endIf
 
 	FreezeState(false)
-	Debug.TraceUser(sLogName, "CaptureBuildingPlans("+sAddonFilename+") complete")
+	Debug.TraceUser(sLogName, "CaptureBuildingPlans("+iSize+", "+sAddonFilename+") complete")
+	Debug.MessageBox("CaptureBuildingPlans("+iSize+", "+sAddonFilename+") complete")
 EndFunction
 
 Form waitingBuildingLevelPlan
