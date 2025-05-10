@@ -1,13 +1,5 @@
 scriptname SS2_ScreenshotTool:Quests:Main extends Quest
 
-import SUP_F4SE
-import System:Form
-import System:Strings
-import GardenOfEden
-
-import WorkshopFramework:Library:DataStructures
-import WorkshopDataScript
-
 Group General
 	SimSettlementsV2:Quests:SS2Main Property SS2Main Auto Const Mandatory
 	SS2_ScreenshotTool:Quests:Indexer Property questIndexer Auto Const Mandatory
@@ -70,7 +62,7 @@ Function TakeScreenshot(string name)
     GameHour.SetValue(FreezeTime)
     ClearWeather.ForceActive()
     Utility.Wait(0.1)
-    CaptureScreenshotAlt(sLogName, name+".jpg", 0, ImageWidth, 0, ImageHeight, 0, 100)
+    SUP_F4SE.CaptureScreenshotAlt(sLogName, name+".jpg", 0, ImageWidth, 0, ImageHeight, 0, 100)
 EndFunction
 
 ;; --------------------------------------------------

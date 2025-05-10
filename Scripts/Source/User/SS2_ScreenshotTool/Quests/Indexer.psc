@@ -1,12 +1,6 @@
 scriptname SS2_ScreenshotTool:Quests:Indexer extends Quest
 
-import SUP_F4SE
-import System:Form
-import System:Strings
-import GardenOfEden
-
 import WorkshopFramework:Library:DataStructures
-import WorkshopDataScript
 
 Group General
     SS2_ScreenshotTool:Quests:Main Property questMain Auto Const Mandatory
@@ -110,7 +104,7 @@ Function IndexAddonItemList(FormList thisList)
 EndFunction
 
 Function IndexAddonItem(Form thisItem)
-	string sAddonFilename = GetModName(thisItem)
+	string sAddonFilename = System:Form.GetModName(thisItem)
 	IndexedAddon thisIndexedAddon = GetIndexedAddon(sAddonFilename)
 
 	; unlockable flags

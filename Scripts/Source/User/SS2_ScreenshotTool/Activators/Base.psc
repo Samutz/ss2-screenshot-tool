@@ -1,12 +1,12 @@
 scriptname SS2_ScreenshotTool:Activators:Base extends ObjectReference
 
-Import SUP_F4SE
-Import System:Form
-Import System:Strings
-Import GardenOfEden
+;Import SUP_F4SE
+;Import System:Form
+;Import System:Strings
+;Import GardenOfEden
 
 import WorkshopFramework:Library:DataStructures
-import WorkshopDataScript
+;import WorkshopDataScript
 
 SS2_ScreenshotTool:Quests:Main Property questMain Auto Const Mandatory
 SS2_ScreenshotTool:Quests:Indexer Property questIndexer Auto Const Mandatory
@@ -70,13 +70,13 @@ Function SetWorldObject()
 EndFunction
 
 string Function GetFormKey(Form formObj)
-	string hexID = GetHexFormID(formObj)
-	if StartsWith(hexID, "FE")
-		hexID = "000"+Substring(hexID, 5)
+	string hexID = GardenOfEden.GetHexFormID(formObj)
+	if System:Strings.StartsWith(hexID, "FE")
+		hexID = "000"+System:Strings.Substring(hexID, 5)
 	else
-		hexID = Substring(hexID, 2)
+		hexID = System:Strings.Substring(hexID, 2)
 	endIf
-	string modName = GetModName(formObj)
+	string modName = System:Form.GetModName(formObj)
 	string result = hexID+"-"+modName
 	return result
 EndFunction
