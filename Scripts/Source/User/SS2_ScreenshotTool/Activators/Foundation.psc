@@ -15,14 +15,10 @@ Function BatchCapture()
 
 	questMain.FreezeState(true)
 
-	int j = questIndexer.indexedAddons.Length - 1
-	while j >= 0 && bCaptureStage == 2
-		int i = questIndexer.indexedAddons[j].Foundations.Length - 1
-		while i >= 0 && bCaptureStage == 2
-			Capture(questIndexer.indexedAddons[j].Foundations[i])
-			i -= 1
-		endWhile
-		j -= 1
+	int i = questIndexer.SS2SST_Index_Foundations.GetSize() - 1
+	while i >= 0 && bCaptureStage == 2
+		Capture(questIndexer.SS2SST_Index_Foundations.GetAt(i) as SimSettlementsV2:MiscObjects:Foundation)
+		i -= 1
 	endWhile
 
 	questMain.FreezeState(false)

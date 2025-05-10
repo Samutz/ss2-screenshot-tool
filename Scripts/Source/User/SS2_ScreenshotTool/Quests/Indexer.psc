@@ -13,19 +13,52 @@ Group PlotSizeKeywords
 	Keyword Property SS2_PlotSize_Int Auto Const Mandatory
 EndGroup
 
+Group PlotTypeKeywords
+	Keyword Property SS2_PlotType_Agricultural Auto Const Mandatory
+	Keyword Property SS2_PlotType_Commercial Auto Const Mandatory
+	Keyword Property SS2_PlotType_Industrial Auto Const Mandatory
+	Keyword Property SS2_PlotType_Martial Auto Const Mandatory
+	Keyword Property SS2_PlotType_Municipal Auto Const Mandatory
+	Keyword Property SS2_PlotType_Recreational Auto Const Mandatory
+	Keyword Property SS2_PlotType_Residential Auto Const Mandatory
+EndGroup
+
+Group IndexFormLists
+	FormList Property SS2SST_Index_Flags Auto Mandatory
+	FormList Property SS2SST_Index_Foundations Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Agricultural_1x1 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Agricultural_2x2 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Agricultural_3x3 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Agricultural_Int Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Commercial_1x1 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Commercial_2x2 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Commercial_3x3 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Commercial_Int Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Industrial_1x1 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Industrial_2x2 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Industrial_3x3 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Industrial_Int Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Martial_1x1 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Martial_2x2 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Martial_3x3 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Martial_Int Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Municipal_1x1 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Municipal_2x2 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Municipal_3x3 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Municipal_Int Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Recreational_1x1 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Recreational_2x2 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Recreational_3x3 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Recreational_Int Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Residential_1x1 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Residential_2x2 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Residential_3x3 Auto Mandatory
+	FormList Property SS2SST_Index_BuildingPlans_Residential_Int Auto Mandatory
+EndGroup
+
 bool Property bIndexInProgress = false Auto Hidden
 
-IndexedAddon[] Property indexedAddons Auto Hidden
-
-Struct IndexedAddon
-	string sAddonFilename
-	SimSettlementsV2:Armors:ThemeDefinition_Flags[] Flags
-	SimSettlementsV2:Weapons:BuildingPlan[] BuildingPlans1x1
-	SimSettlementsV2:Weapons:BuildingPlan[] BuildingPlans2x2
-	SimSettlementsV2:Weapons:BuildingPlan[] BuildingPlans3x3
-	SimSettlementsV2:Weapons:BuildingPlan[] BuildingPlansInt
-	SimSettlementsV2:MiscObjects:Foundation[] Foundations
-EndStruct
+int Property iIndexedItemCount = 0 Auto Hidden
 
 Actor refPlayer
 
@@ -45,10 +78,6 @@ Event Actor.OnPlayerLoadGame(Actor akActorRef)
 EndEvent
 
 Function StartUp()
-	while !questMain.SS2Main.bAddonProcessingComplete
-		Log("Waiting for SS2Main.bAddonProcessingComplete")
-		Utility.Wait(1)
-	endWhile
 	IndexAddons(false)
 EndFunction
 
@@ -61,10 +90,16 @@ EndFunction
 ;; --------------------------------------------------
 
 Function IndexAddons(bool bForce)
-	if indexedAddons == none || indexedAddons.Length == 0 || bForce == true
+	if iIndexedItemCount == 0 || bForce == true
+		
+		while !questMain.SS2Main.bAddonProcessingComplete
+			Log("Waiting for SS2Main.bAddonProcessingComplete")
+			Utility.Wait(1)
+		endWhile
+
 		Log("Starting Indexing")
 		bIndexInProgress = true
-		indexedAddons = new IndexedAddon[0]
+		RevertAll()
 
 		int i = questMain.SS2Main.RegisteredAddonPacks.GetCount() - 1
 		while i >= 0
@@ -88,6 +123,7 @@ Function IndexAddonConfig(SimSettlementsV2:MiscObjects:AddonPackConfiguration th
 	if thisConfig.MyItems == none || thisConfig.sAddonFilename == ""
 		return
 	endIf
+	Log("Checking "+thisConfig.sAddonFilename)
 	int i = thisConfig.MyItems.Length - 1
 	while i >= 0
 		IndexAddonItemList(thisConfig.MyItems[i])
@@ -96,6 +132,9 @@ Function IndexAddonConfig(SimSettlementsV2:MiscObjects:AddonPackConfiguration th
 EndFunction
 
 Function IndexAddonItemList(FormList thisList)
+	if thisList.GetAt(0) != none	
+		Log("List: "+thisList.GetAt(0))
+	endIf
 	int i = thisList.GetSize() - 1
 	while i >= 0
 		IndexAddonItem(thisList.GetAt(i))
@@ -105,18 +144,17 @@ EndFunction
 
 Function IndexAddonItem(Form thisItem)
 	string sAddonFilename = System:Form.GetModName(thisItem)
-	IndexedAddon thisIndexedAddon = GetIndexedAddon(sAddonFilename)
 
 	; unlockable flags
 	if thisItem as SimSettlementsV2:MiscObjects:UnlockableFlag && (thisItem as SimSettlementsV2:MiscObjects:UnlockableFlag).FlagThemeDefinition != none
 		IndexAddonItem((thisItem as SimSettlementsV2:MiscObjects:UnlockableFlag).FlagThemeDefinition)
-	
 	; flags
 	; several non-flag scripts extend from ThemeDefinition_Flags, so we need to filter them out
 	elseif thisItem as SimSettlementsV2:Armors:ThemeDefinition_Flags && !(thisItem as SimSettlementsV2:Armors:ThemeDefinition_EmpireFlags) && !(thisItem as SimSettlementsV2:Armors:ThemeDefinition_Holiday) && !(thisItem as SimSettlementsV2:Armors:ThemeDefinition_DecorationSet)
 		SimSettlementsV2:Armors:ThemeDefinition_Flags thisItem2 = thisItem as SimSettlementsV2:Armors:ThemeDefinition_Flags
-		thisIndexedAddon.Flags.Add(thisItem2)
-		Log("Added Flag "+thisItem2+" to "+sAddonFilename+"'s index")
+		SS2SST_Index_Flags.AddForm(thisItem2)
+		iIndexedItemCount += 1
+		Log("Added Flag "+thisItem2+" from "+sAddonFilename)
 
 	; unlockable buildingplan
 	elseif thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan && (thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan).BuildingPlan != none
@@ -125,46 +163,108 @@ Function IndexAddonItem(Form thisItem)
 	; buildingplan
 	elseif thisItem as SimSettlementsV2:Weapons:BuildingPlan
 		SimSettlementsV2:Weapons:BuildingPlan thisItem2 = thisItem as SimSettlementsV2:Weapons:BuildingPlan
-		if thisItem2.HasKeyword(SS2_PlotSize_1x1)
-			thisIndexedAddon.BuildingPlans1x1.Add(thisItem2)
-		elseif thisItem2.HasKeyword(SS2_PlotSize_2x2)
-			thisIndexedAddon.BuildingPlans2x2.Add(thisItem2)
-		elseif thisItem2.HasKeyword(SS2_PlotSize_3x3)
-			thisIndexedAddon.BuildingPlans3x3.Add(thisItem2)
-		elseif thisItem2.HasKeyword(SS2_PlotSize_Int)
-			thisIndexedAddon.BuildingPlansInt.Add(thisItem2)
-		else
-			thisItem2 = none
-		endif
+		IndexBuildingPlan(thisItem2)
 		if thisItem2 != none
-			Log("Added BuildingPlan "+thisItem2+" to "+sAddonFilename+"'s index")
+			Log("Added BuildingPlan "+thisItem2+" from "+sAddonFilename)
 		endIf
 
 	; foundations
 	elseif thisItem as SimSettlementsV2:MiscObjects:Foundation
 		SimSettlementsV2:MiscObjects:Foundation thisItem2 = thisItem as SimSettlementsV2:MiscObjects:Foundation
-		thisIndexedAddon.Foundations.Add(thisItem2)
-		Log("Added Foundation "+thisItem2+" to "+sAddonFilename+"'s index")
+		SS2SST_Index_Foundations.AddForm(thisItem2)
+		iIndexedItemCount += 1
+		Log("Added Foundation "+thisItem2+" from "+sAddonFilename)
 
 	endIf
 EndFunction
 
-IndexedAddon Function GetIndexedAddon(string sAddonFilename)
-	IndexedAddon thisIndexedAddon = new IndexedAddon
-	int index = indexedAddons.FindStruct("sAddonFilename", sAddonFilename)
-	if index < 0
-		thisIndexedAddon = new IndexedAddon
-		thisIndexedAddon.sAddonFilename = sAddonFilename
-		thisIndexedAddon.Flags = new SimSettlementsV2:Armors:ThemeDefinition_Flags[0]
-		thisIndexedAddon.BuildingPlans1x1 = new SimSettlementsV2:Weapons:BuildingPlan[0]
-		thisIndexedAddon.BuildingPlans2x2 = new SimSettlementsV2:Weapons:BuildingPlan[0]
-		thisIndexedAddon.BuildingPlans3x3 = new SimSettlementsV2:Weapons:BuildingPlan[0]
-		thisIndexedAddon.BuildingPlansInt = new SimSettlementsV2:Weapons:BuildingPlan[0]
-		thisIndexedAddon.Foundations = new SimSettlementsV2:MiscObjects:Foundation[0]
-		indexedAddons.Add(thisIndexedAddon)
-		Log("Added Addon "+sAddonFilename+" to index")
-	else
-		thisIndexedAddon = indexedAddons[index]
-	endIf
-	return thisIndexedAddon
+Function IndexBuildingPlan(SimSettlementsV2:Weapons:BuildingPlan thisItem)
+	if thisItem.HasKeyWord(SS2_PlotType_Agricultural) && thisItem.HasKeyWord(SS2_PlotSize_1x1)
+		SS2SST_Index_BuildingPlans_Agricultural_1x1.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Agricultural) && thisItem.HasKeyWord(SS2_PlotSize_2x2)
+		SS2SST_Index_BuildingPlans_Agricultural_2x2.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Agricultural) && thisItem.HasKeyWord(SS2_PlotSize_3x3)
+		SS2SST_Index_BuildingPlans_Agricultural_3x3.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Agricultural) && thisItem.HasKeyWord(SS2_PlotSize_Int)
+		SS2SST_Index_BuildingPlans_Agricultural_Int.AddForm(thisItem)
+
+	elseif thisItem.HasKeyWord(SS2_PlotType_Commercial) && thisItem.HasKeyWord(SS2_PlotSize_1x1)
+		SS2SST_Index_BuildingPlans_Commercial_1x1.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Commercial) && thisItem.HasKeyWord(SS2_PlotSize_2x2)
+		SS2SST_Index_BuildingPlans_Commercial_2x2.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Commercial) && thisItem.HasKeyWord(SS2_PlotSize_3x3)
+		SS2SST_Index_BuildingPlans_Commercial_3x3.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Commercial) && thisItem.HasKeyWord(SS2_PlotSize_Int)
+		SS2SST_Index_BuildingPlans_Commercial_Int.AddForm(thisItem)
+
+	elseif thisItem.HasKeyWord(SS2_PlotType_Industrial) && thisItem.HasKeyWord(SS2_PlotSize_1x1)
+		SS2SST_Index_BuildingPlans_Industrial_1x1.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Industrial) && thisItem.HasKeyWord(SS2_PlotSize_2x2)
+		SS2SST_Index_BuildingPlans_Industrial_2x2.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Industrial) && thisItem.HasKeyWord(SS2_PlotSize_3x3)
+		SS2SST_Index_BuildingPlans_Industrial_3x3.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Industrial) && thisItem.HasKeyWord(SS2_PlotSize_Int)
+		SS2SST_Index_BuildingPlans_Industrial_Int.AddForm(thisItem)
+
+	elseif thisItem.HasKeyWord(SS2_PlotType_Martial) && thisItem.HasKeyWord(SS2_PlotSize_1x1)
+		SS2SST_Index_BuildingPlans_Martial_1x1.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Martial) && thisItem.HasKeyWord(SS2_PlotSize_2x2)
+		SS2SST_Index_BuildingPlans_Martial_2x2.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Martial) && thisItem.HasKeyWord(SS2_PlotSize_3x3)
+		SS2SST_Index_BuildingPlans_Martial_3x3.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Martial) && thisItem.HasKeyWord(SS2_PlotSize_Int)
+		SS2SST_Index_BuildingPlans_Martial_Int.AddForm(thisItem)
+
+	elseif thisItem.HasKeyWord(SS2_PlotType_Recreational) && thisItem.HasKeyWord(SS2_PlotSize_1x1)
+		SS2SST_Index_BuildingPlans_Recreational_1x1.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Recreational) && thisItem.HasKeyWord(SS2_PlotSize_2x2)
+		SS2SST_Index_BuildingPlans_Recreational_2x2.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Recreational) && thisItem.HasKeyWord(SS2_PlotSize_3x3)
+		SS2SST_Index_BuildingPlans_Recreational_3x3.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Recreational) && thisItem.HasKeyWord(SS2_PlotSize_Int)
+		SS2SST_Index_BuildingPlans_Recreational_Int.AddForm(thisItem)
+
+	elseif thisItem.HasKeyWord(SS2_PlotType_Residential) && thisItem.HasKeyWord(SS2_PlotSize_1x1)
+		SS2SST_Index_BuildingPlans_Residential_1x1.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Residential) && thisItem.HasKeyWord(SS2_PlotSize_2x2)
+		SS2SST_Index_BuildingPlans_Residential_2x2.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Residential) && thisItem.HasKeyWord(SS2_PlotSize_3x3)
+		SS2SST_Index_BuildingPlans_Residential_3x3.AddForm(thisItem)
+	elseif thisItem.HasKeyWord(SS2_PlotType_Residential) && thisItem.HasKeyWord(SS2_PlotSize_Int)
+		SS2SST_Index_BuildingPlans_Residential_Int.AddForm(thisItem)
+
+	endif
+EndFunction
+
+Function RevertAll()
+	SS2SST_Index_Flags.Revert()
+	SS2SST_Index_Foundations.Revert()
+	SS2SST_Index_BuildingPlans_Agricultural_1x1.Revert()
+	SS2SST_Index_BuildingPlans_Agricultural_2x2.Revert()
+	SS2SST_Index_BuildingPlans_Agricultural_3x3.Revert()
+	SS2SST_Index_BuildingPlans_Agricultural_Int.Revert()
+	SS2SST_Index_BuildingPlans_Commercial_1x1.Revert()
+	SS2SST_Index_BuildingPlans_Commercial_2x2.Revert()
+	SS2SST_Index_BuildingPlans_Commercial_3x3.Revert()
+	SS2SST_Index_BuildingPlans_Commercial_Int.Revert()
+	SS2SST_Index_BuildingPlans_Industrial_1x1.Revert()
+	SS2SST_Index_BuildingPlans_Industrial_2x2.Revert()
+	SS2SST_Index_BuildingPlans_Industrial_3x3.Revert()
+	SS2SST_Index_BuildingPlans_Industrial_Int.Revert()
+	SS2SST_Index_BuildingPlans_Martial_1x1.Revert()
+	SS2SST_Index_BuildingPlans_Martial_2x2.Revert()
+	SS2SST_Index_BuildingPlans_Martial_3x3.Revert()
+	SS2SST_Index_BuildingPlans_Martial_Int.Revert()
+	SS2SST_Index_BuildingPlans_Municipal_1x1.Revert()
+	SS2SST_Index_BuildingPlans_Municipal_2x2.Revert()
+	SS2SST_Index_BuildingPlans_Municipal_3x3.Revert()
+	SS2SST_Index_BuildingPlans_Municipal_Int.Revert()
+	SS2SST_Index_BuildingPlans_Recreational_1x1.Revert()
+	SS2SST_Index_BuildingPlans_Recreational_2x2.Revert()
+	SS2SST_Index_BuildingPlans_Recreational_3x3.Revert()
+	SS2SST_Index_BuildingPlans_Recreational_Int.Revert()
+	SS2SST_Index_BuildingPlans_Residential_1x1.Revert()
+	SS2SST_Index_BuildingPlans_Residential_2x2.Revert()
+	SS2SST_Index_BuildingPlans_Residential_3x3.Revert()
+	SS2SST_Index_BuildingPlans_Residential_Int.Revert()
 EndFunction

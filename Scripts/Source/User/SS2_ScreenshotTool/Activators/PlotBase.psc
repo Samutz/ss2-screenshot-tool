@@ -81,16 +81,16 @@ Function CaptureBuildingPlans(int iSize, string sAddonFilename = "")
 			i -= 1
 		endWhile
 	else ; no plugin specified, do all indexed items
-		int j = indexedAddons.Length - 1
+		int j = indexedItems.Length - 1
 		while j >= 0
 			if iSize == 1
-				indexedPlans = indexedAddons[j].BuildingPlans1x1
+				indexedPlans = indexedItems[j].BuildingPlans1x1
 			elseif iSize == 2
-				indexedPlans = indexedAddons[j].BuildingPlans2x2
+				indexedPlans = indexedItems[j].BuildingPlans2x2
 			elseif iSize == 3
-				indexedPlans = indexedAddons[j].BuildingPlans3x3
+				indexedPlans = indexedItems[j].BuildingPlans3x3
 			elseif iSize == 4
-				indexedPlans = indexedAddons[j].BuildingPlansInt
+				indexedPlans = indexedItems[j].BuildingPlansInt
 			else
 				Debug.MessageBox("Invalid size: "+iSize)
 				return

@@ -15,14 +15,10 @@ Function BatchCapture()
 
 	questMain.FreezeState(true)
 
-	int j = questIndexer.indexedAddons.Length - 1
-	while j >= 0 && bCaptureStage == 2
-		int i = questIndexer.indexedAddons[j].Flags.Length - 1
-		while i >= 0 && bCaptureStage == 2
-			Capture(questIndexer.indexedAddons[j].Flags[i])
-			i -= 1
-		endWhile
-		j -= 1
+	int i = questIndexer.SS2SST_Index_Flags.GetSize() - 1
+	while i >= 0 && bCaptureStage == 2
+		Capture(questIndexer.SS2SST_Index_Flags.GetAt(i) as SimSettlementsV2:Armors:ThemeDefinition_Flags)
+		i -= 1
 	endWhile
 
 	questMain.FreezeState(false)
