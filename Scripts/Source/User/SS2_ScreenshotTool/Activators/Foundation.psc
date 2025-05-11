@@ -4,6 +4,10 @@ import WorkshopFramework:Library:DataStructures
 
 string sLogPrefix = "Activators:Foundation"
 
+Function LogCount()
+	Log("Foundation Count: "+questIndexer.SS2SST_Index_Foundations.GetSize())
+EndFunction
+
 Function BatchCapture()
 	CheckIndexing()
 
@@ -18,6 +22,7 @@ Function BatchCapture()
 	int i = questIndexer.SS2SST_Index_Foundations.GetSize() - 1
 	while i >= 0 && bCaptureStage == 2
 		Capture(questIndexer.SS2SST_Index_Foundations.GetAt(i) as SimSettlementsV2:MiscObjects:Foundation)
+		Log(i +" remaining")
 		i -= 1
 	endWhile
 
@@ -28,7 +33,6 @@ Function BatchCapture()
 
 	Log("BatchCapture() complete")
 	Debug.MessageBox("BatchCapture() complete")
-
 EndFunction
 
 Function Capture(SimSettlementsV2:MiscObjects:Foundation thisForm)

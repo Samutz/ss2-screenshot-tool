@@ -39,6 +39,7 @@ Event OnActivate(ObjectReference akReference)
     else
         Debug.Notification("Capture will begin in 10 seconds")
         Log("Capture will begin in 10 seconds")
+		LogCount()
         bCaptureStage = 1
         Utility.Wait(10)
         if bCaptureStage == 1 ; incase canceled during wait
@@ -90,5 +91,9 @@ Form Function GetWorldObjectForm(WorldObject thisWorldObject2)
 EndFunction
 
 Function BatchCapture()
+    ; stub
+EndFunction
+
+Function LogCount()
     ; stub
 EndFunction

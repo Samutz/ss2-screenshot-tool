@@ -4,6 +4,10 @@ import WorkshopFramework:Library:DataStructures
 
 string sLogPrefix = "Activators:Flag"
 
+Function LogCount()
+	Log("Flag Count: "+questIndexer.SS2SST_Index_Flags.GetSize())
+EndFunction
+
 Function BatchCapture()
 	CheckIndexing()
 
@@ -18,6 +22,7 @@ Function BatchCapture()
 	int i = questIndexer.SS2SST_Index_Flags.GetSize() - 1
 	while i >= 0 && bCaptureStage == 2
 		Capture(questIndexer.SS2SST_Index_Flags.GetAt(i) as SimSettlementsV2:Armors:ThemeDefinition_Flags)
+		Log(i +" remaining")
 		i -= 1
 	endWhile
 
@@ -28,7 +33,6 @@ Function BatchCapture()
 
 	Log("BatchCapture() complete")
 	Debug.MessageBox("BatchCapture() complete")
-
 EndFunction
 
 Function Capture(SimSettlementsV2:Armors:ThemeDefinition_Flags thisForm)
