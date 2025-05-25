@@ -122,7 +122,7 @@ Function IndexAddons(bool bForce)
 		Debug.MessageBox("Finished Indexing")
 	else
 		Log("Index already populated")
-		Debug.MessageBox("Index already populated")
+		Debug.Notification("Index already populated")
 	endIf
 EndFunction
 
