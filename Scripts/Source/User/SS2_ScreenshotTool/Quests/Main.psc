@@ -61,12 +61,9 @@ EndFunction
 Function TakeScreenshot(string name)
     GameHour.SetValue(FreezeTime)
     ClearWeather.ForceActive()
+	Game.SetCharGenHUDMode(3)
     Utility.Wait(0.1)
     SUP_F4SE.CaptureScreenshotAlt(sLogName, name+".jpg", 0, ImageWidth, 0, ImageHeight, 0, 100)
+    Utility.Wait(0.1)
+	Game.SetCharGenHUDMode(0)
 EndFunction
-
-;; --------------------------------------------------
-;; Miscellaneous Functions
-;; --------------------------------------------------
-
-; there HAS to be a better way to do this...
