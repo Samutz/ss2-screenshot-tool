@@ -3,6 +3,8 @@ scriptname SS2_ScreenshotTool:Quests:Main extends Quest
 Group General
 	SimSettlementsV2:Quests:SS2Main Property SS2Main Auto Const Mandatory
 	SS2_ScreenshotTool:Quests:Indexer Property questIndexer Auto Const Mandatory
+	ObjectReference Property ItemContainer Auto Mandatory
+	FormList Property ItemsToCaptureFormList Auto Mandatory
 EndGroup
 
 Group ScreenshotSettings

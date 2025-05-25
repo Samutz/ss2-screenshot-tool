@@ -12,10 +12,12 @@ SS2_ScreenshotTool:Quests:Main Property questMain Auto Const Mandatory
 SS2_ScreenshotTool:Quests:Indexer Property questIndexer Auto Const Mandatory
 
 string sLogPrefix = "Base"
+Actor Property refPlayer Auto Hidden
 WorkshopScript Property refWorkshop Auto Hidden
 WorldObject Property thisWorldObject Auto Hidden
 int Property bCaptureStage = 0 Auto Hidden
 ; 0 = idle, 1 = pending, 2 = capturing
+FormList Property sourceFormList Auto Hidden
 
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
 	refWorkshop = akReference as WorkshopScript
@@ -30,17 +32,59 @@ EndEvent
 Event OnActivate(ObjectReference akReference)
     if bCaptureStage == 2
         bCaptureStage = 0
-	    Debug.Notification("Capture interrupted")
+	    ;Debug.Notification("Capture interrupted")
         Log("Capture interrupted")
     elseif bCaptureStage == 1
         bCaptureStage = 0
-	    Debug.Notification("Capture canceled")
+	    ;Debug.Notification("Capture canceled")
         Log("Capture canceled")
     else
-        Debug.Notification("Capture will begin in 10 seconds")
-        Log("Capture will begin in 10 seconds")
 		LogCount()
-        bCaptureStage = 1
+        ;bCaptureStage = 1
+        ;Utility.Wait(10)
+        ;if bCaptureStage == 1 ; incase canceled during wait
+        ;    BatchCapture()
+        ;endIf
+		PrepContainer()
+    endif
+EndEvent
+
+Function PrepContainer()
+	CheckIndexing()
+
+	questMain.ItemContainer.RemoveAllItems()
+	questMain.ItemsToCaptureFormList.Revert()
+	
+	refPlayer = Game.GetPlayer()
+
+	SetSourceFormList()
+	
+	int i = sourceFormList.GetSize() - 1
+	while i >= 0
+		questMain.ItemContainer.AddItem(sourceFormList.GetAt(i))
+		AddInventoryEventFilter(sourceFormList.GetAt(i))
+		i -= 1
+	endWhile
+	RegisterForRemoteEvent(questMain.ItemContainer, "OnItemRemoved")
+	RegisterForMenuOpenCloseEvent("ContainerMenu")
+	questMain.ItemContainer.Activate(refPlayer)
+EndFunction
+
+Event ObjectReference.OnItemRemoved(ObjectReference akSender, Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer)
+	if akSender != questMain.ItemContainer || akDestContainer != refPlayer as ObjectReference
+		return
+	endIf
+	questMain.ItemsToCaptureFormList.AddForm(akBaseItem)
+	refPlayer.RemoveItem(akItemReference, 0, true)
+EndEvent
+
+Event OnMenuOpenCloseEvent(String asMenuName, bool abOpening)
+    if asMenuName == "ContainerMenu" && !abOpening && questMain.ItemsToCaptureFormList.GetSize() > 0
+		UnregisterForMenuOpenCloseEvent("ContainerMenu")
+		UnregisterForRemoteEvent(questMain.ItemContainer, "OnItemRemoved")
+        ;Debug.Notification("Capture will begin in 10 seconds")
+        Log("Capture will begin in 10 seconds")
+		bCaptureStage = 1
         Utility.Wait(10)
         if bCaptureStage == 1 ; incase canceled during wait
             BatchCapture()
@@ -48,13 +92,16 @@ Event OnActivate(ObjectReference akReference)
     endif
 EndEvent
 
-Function Log(string sMessage)
+Function Log(string sMessage, bool bNotification = true)
 	questMain.Log("[Activators:"+sLogPrefix+"] "+sMessage)
+	if bNotification
+		Debug.Notification(sMessage)
+	endIf
 EndFunction
 
 Function CheckIndexing()
 	if questMain.questIndexer.bIndexInProgress
-		Debug.MessageBox("Indexing is still running")
+		Debug.Notification("Indexing is still running")
 		return
 	endIf
 EndFunction
@@ -96,4 +143,8 @@ EndFunction
 
 Function LogCount()
     ; stub
+EndFunction
+
+Function SetSourceFormList()
+	; stub
 EndFunction

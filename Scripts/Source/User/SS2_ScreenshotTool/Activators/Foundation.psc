@@ -8,6 +8,10 @@ Function LogCount()
 	Log("Foundation Count: "+questIndexer.SS2SST_Index_Foundations.GetSize())
 EndFunction
 
+Function SetSourceFormList()
+	sourceFormList = questIndexer.SS2SST_Index_Foundations
+EndFunction
+
 Function BatchCapture()
 	CheckIndexing()
 
@@ -19,9 +23,9 @@ Function BatchCapture()
 
 	questMain.FreezeState(true)
 
-	int i = questIndexer.SS2SST_Index_Foundations.GetSize() - 1
+	int i = questMain.ItemsToCaptureFormList.GetSize() - 1
 	while i >= 0 && bCaptureStage == 2
-		Capture(questIndexer.SS2SST_Index_Foundations.GetAt(i) as SimSettlementsV2:MiscObjects:Foundation)
+		Capture(questMain.ItemsToCaptureFormList.GetAt(i) as SimSettlementsV2:MiscObjects:Foundation)
 		Log(i +" remaining")
 		i -= 1
 	endWhile
@@ -32,7 +36,6 @@ Function BatchCapture()
 	Enable()
 
 	Log("BatchCapture() complete")
-	Debug.MessageBox("BatchCapture() complete")
 EndFunction
 
 Function Capture(SimSettlementsV2:MiscObjects:Foundation thisForm)
@@ -40,7 +43,7 @@ Function Capture(SimSettlementsV2:MiscObjects:Foundation thisForm)
 
 	if thisForm.Spawndata != none
 		string sFormkey = GetFormKey(thisForm as Form)
-		Log("Capturing Foundation: "+sFormkey)
+		Log("Capturing Foundation: "+sFormkey, false)
 
 		thisWorldObject.ObjectForm = GetWorldObjectForm(thisForm.Spawndata)
 
@@ -49,6 +52,6 @@ Function Capture(SimSettlementsV2:MiscObjects:Foundation thisForm)
 		WorkshopFramework:WSFW_API.RemoveSettlementObject(refObj)
 		Utility.Wait(0.5)
 	else
-		Log("Foundation is missing Spawndata property: "+thisForm)
+		Log("Foundation is missing Spawndata property: "+thisForm, false)
 	endIf
 EndFunction

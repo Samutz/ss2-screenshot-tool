@@ -8,6 +8,10 @@ Function LogCount()
 	Log("Flag Count: "+questIndexer.SS2SST_Index_Flags.GetSize())
 EndFunction
 
+Function SetSourceFormList()
+	sourceFormList = questIndexer.SS2SST_Index_Flags
+EndFunction
+
 Function BatchCapture()
 	CheckIndexing()
 
@@ -19,10 +23,12 @@ Function BatchCapture()
 
 	questMain.FreezeState(true)
 
-	int i = questIndexer.SS2SST_Index_Flags.GetSize() - 1
+	int i = questMain.ItemsToCaptureFormList.GetSize() - 1
 	while i >= 0 && bCaptureStage == 2
-		Capture(questIndexer.SS2SST_Index_Flags.GetAt(i) as SimSettlementsV2:Armors:ThemeDefinition_Flags)
-		Log(i +" remaining")
+		Capture(questMain.ItemsToCaptureFormList.GetAt(i) as SimSettlementsV2:Armors:ThemeDefinition_Flags)
+		if i % 5 == 0 ; only do every 5 since notifications are slower than the time spent on each item
+			Log(i +" remaining")
+		endif
 		i -= 1
 	endWhile
 
@@ -32,7 +38,6 @@ Function BatchCapture()
 	Enable()
 
 	Log("BatchCapture() complete")
-	Debug.MessageBox("BatchCapture() complete")
 EndFunction
 
 Function Capture(SimSettlementsV2:Armors:ThemeDefinition_Flags thisForm)
@@ -40,7 +45,7 @@ Function Capture(SimSettlementsV2:Armors:ThemeDefinition_Flags thisForm)
 
 	if thisForm.FlagWall != none
 		string sFormkey = GetFormKey(thisForm as Form)
-		Log("Capturing flag: "+sFormkey)
+		Log("Capturing flag: "+sFormkey, false)
 
 		thisWorldObject.ObjectForm = thisForm.FlagWall
 
@@ -49,6 +54,6 @@ Function Capture(SimSettlementsV2:Armors:ThemeDefinition_Flags thisForm)
 		WorkshopFramework:WSFW_API.RemoveSettlementObject(refObj)
 		Utility.Wait(0.5)
 	else
-		Log("Flag is missing FlagWall property: "+thisForm)
+		Log("Flag is missing FlagWall property: "+thisForm, false)
 	endIf
 EndFunction
