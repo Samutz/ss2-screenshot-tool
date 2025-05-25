@@ -26,6 +26,13 @@ EndGroup
 Group IndexFormLists
 	FormList Property SS2SST_Index_Flags Auto Mandatory
 	FormList Property SS2SST_Index_Foundations Auto Mandatory
+	FormList Property SS2SST_Index_PowerPoles Auto Mandatory
+	FormList Property SS2SST_Index_Furniture Auto Mandatory
+	FormList Property SS2SST_Index_UniqueSettlers Auto Mandatory
+	FormList Property SS2SST_Index_Pets Auto Mandatory
+EndGroup
+
+Group IndexFormListsBuildingPlans
 	FormList Property SS2SST_Index_BuildingPlans_Agricultural_1x1 Auto Mandatory
 	FormList Property SS2SST_Index_BuildingPlans_Agricultural_2x2 Auto Mandatory
 	FormList Property SS2SST_Index_BuildingPlans_Agricultural_3x3 Auto Mandatory
@@ -148,32 +155,54 @@ Function IndexAddonItem(Form thisItem)
 	; unlockable flags
 	if thisItem as SimSettlementsV2:MiscObjects:UnlockableFlag && (thisItem as SimSettlementsV2:MiscObjects:UnlockableFlag).FlagThemeDefinition != none
 		IndexAddonItem((thisItem as SimSettlementsV2:MiscObjects:UnlockableFlag).FlagThemeDefinition)
+	
 	; flags
 	; several non-flag scripts extend from ThemeDefinition_Flags, so we need to filter them out
 	elseif thisItem as SimSettlementsV2:Armors:ThemeDefinition_Flags && !(thisItem as SimSettlementsV2:Armors:ThemeDefinition_EmpireFlags) && !(thisItem as SimSettlementsV2:Armors:ThemeDefinition_Holiday) && !(thisItem as SimSettlementsV2:Armors:ThemeDefinition_DecorationSet)
-		SimSettlementsV2:Armors:ThemeDefinition_Flags thisItem2 = thisItem as SimSettlementsV2:Armors:ThemeDefinition_Flags
-		SS2SST_Index_Flags.AddForm(thisItem2)
+		SS2SST_Index_Flags.AddForm(thisItem)
 		iIndexedItemCount += 1
-		Log("Added Flag "+thisItem2+" from "+sAddonFilename)
+		Log("Added Flag "+thisItem+" from "+sAddonFilename)
 
-	; unlockable buildingplan
+	; unlockable buildingplans
 	elseif thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan && (thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan).BuildingPlan != none
 		IndexAddonItem((thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan).BuildingPlan)
 
-	; buildingplan
+	; buildingplans
 	elseif thisItem as SimSettlementsV2:Weapons:BuildingPlan
-		SimSettlementsV2:Weapons:BuildingPlan thisItem2 = thisItem as SimSettlementsV2:Weapons:BuildingPlan
-		IndexBuildingPlan(thisItem2)
-		if thisItem2 != none
-			Log("Added BuildingPlan "+thisItem2+" from "+sAddonFilename)
+		IndexBuildingPlan(thisItem as SimSettlementsV2:Weapons:BuildingPlan)
+		if thisItem != none
+			Log("Added BuildingPlan "+thisItem+" from "+sAddonFilename)
 		endIf
 
 	; foundations
 	elseif thisItem as SimSettlementsV2:MiscObjects:Foundation
-		SimSettlementsV2:MiscObjects:Foundation thisItem2 = thisItem as SimSettlementsV2:MiscObjects:Foundation
-		SS2SST_Index_Foundations.AddForm(thisItem2)
+		SS2SST_Index_Foundations.AddForm(thisItem)
 		iIndexedItemCount += 1
-		Log("Added Foundation "+thisItem2+" from "+sAddonFilename)
+		Log("Added Foundation "+thisItem+" from "+sAddonFilename)
+
+	; powerpoles
+	elseif thisItem as SimSettlementsV2:MiscObjects:PowerPole
+		SS2SST_Index_PowerPoles.AddForm(thisItem)
+		iIndexedItemCount += 1
+		Log("Added PowerPole "+thisItem+" from "+sAddonFilename)
+
+	; furniture
+	elseif thisItem as SimSettlementsV2:MiscObjects:FurnitureStoreItem
+		SS2SST_Index_Furniture.AddForm(thisItem)
+		iIndexedItemCount += 1
+		Log("Added Furniture "+thisItem+" from "+sAddonFilename)
+
+	; unique settlers
+	elseif thisItem as SimSettlementsV2:MiscObjects:UnlockableCharacter
+		SS2SST_Index_UniqueSettlers.AddForm(thisItem)
+		iIndexedItemCount += 1
+		Log("Added Unqiue Settler "+thisItem+" from "+sAddonFilename)
+
+	; pets
+	elseif thisItem as SimSettlementsV2:MiscObjects:PetStoreCreatureItem
+		SS2SST_Index_Pets.AddForm(thisItem)
+		iIndexedItemCount += 1
+		Log("Added Pet "+thisItem+" from "+sAddonFilename)
 
 	endIf
 EndFunction
@@ -239,6 +268,10 @@ EndFunction
 Function RevertAll()
 	SS2SST_Index_Flags.Revert()
 	SS2SST_Index_Foundations.Revert()
+	SS2SST_Index_PowerPoles.Revert()
+	SS2SST_Index_Furniture.Revert()
+	SS2SST_Index_UniqueSettlers.Revert()
+	SS2SST_Index_Pets.Revert()
 	SS2SST_Index_BuildingPlans_Agricultural_1x1.Revert()
 	SS2SST_Index_BuildingPlans_Agricultural_2x2.Revert()
 	SS2SST_Index_BuildingPlans_Agricultural_3x3.Revert()
