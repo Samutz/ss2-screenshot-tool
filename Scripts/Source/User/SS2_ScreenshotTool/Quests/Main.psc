@@ -5,6 +5,8 @@ Group General
 	SS2_ScreenshotTool:Quests:Indexer Property questIndexer Auto Const Mandatory
 	ObjectReference Property ItemContainer Auto Mandatory
 	FormList Property ItemsToCaptureFormList Auto Mandatory
+	Message Property WarningMessage Auto Const Mandatory
+	GlobalVariable property WarningMessageAcceptedGlobal Auto Mandatory
 EndGroup
 
 Group ScreenshotSettings
@@ -36,7 +38,14 @@ Event Actor.OnPlayerLoadGame(Actor akActorRef)
 EndEvent
 
 Function StartUp()
-
+	if WarningMessageAcceptedGlobal.GetValue() == 0.0
+		int response = WarningMessage.Show()
+		if response == 0
+			WarningMessageAcceptedGlobal.SetValue(1)
+		else
+			Game.QuitToMainMenu()
+		endif
+	endIf
 EndFunction
 
 Function Log(string sMessage)
