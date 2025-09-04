@@ -28,8 +28,8 @@ Function BatchCapture()
 
 	int i = questMain.ItemsToCaptureFormList.GetSize() - 1
 	while i >= 0 && bCaptureStage == 2
+		Log((i+1)+" remaining")
 		Capture(questMain.ItemsToCaptureFormList.GetAt(i) as SimSettlementsV2:Weapons:BuildingPlan)
-		Log(i +" remaining")
 		i -= 1
 	endWhile
 
@@ -50,7 +50,7 @@ Function Capture(SimSettlementsV2:Weapons:BuildingPlan thisPlan)
 	if thisPlan.LevelPlansList != none
 		
 		string sFormkey = GetFormKey(thisPlan as Form)
-		Log("Capturing Plan: "+sFormkey, false)
+		Log("Spawning Plan: "+sFormkey, false)
 
 		SimSettlementsV2:ObjectReferences:SimPlot refPlot = WorkshopFramework:WSFW_API.CreateSettlementObject(SS2_Plot_Activator, refWorkshop, Self) as SimSettlementsV2:ObjectReferences:SimPlot
 
@@ -59,7 +59,8 @@ Function Capture(SimSettlementsV2:Weapons:BuildingPlan thisPlan)
 			;Log("refPlot: "+refPlot, false)
 		endWhile
 
-		int i = thisPlan.LevelPlansList.GetSize() - 1
+		;int i = thisPlan.LevelPlansList.GetSize() - 1
+		int i = 2
 		while i >= 0
 			SimSettlementsV2:Weapons:BuildingLevelPlan thisLevelPlan = thisPlan.LevelPlansList.GetAt(i) as SimSettlementsV2:Weapons:BuildingLevelPlan
 			refPlot.ForcedPlan = thisLevelPlan
@@ -82,15 +83,54 @@ Function Capture(SimSettlementsV2:Weapons:BuildingPlan thisPlan)
 	endIf
 EndFunction
 
+Function CleanStageItems(SimSettlementsV2:ObjectReferences:SimPlot refPlot)
+	Keyword[] linkKeywords = new Keyword[3]
+	linkKeywords[0] = refPlot.StageItemLinkKeyword
+	linkKeywords[1] = refPlot.StageModelLinkKeyword
+	linkKeywords[2] = refPlot.AccessoryLinkKeyword
+	;MultiStageItemKeyword
+	;SecondaryAssignmentMarkerLinkKeyword
+	;IndicatorLinkKeyword
+
+	int i = 0
+	ObjectReference[] deleteMe = none
+
+	int j = linkKeywords.Length
+	while j >= 0
+		deleteMe = refPlot.kLinkedRefHolder.GetLinkedRefChildren(linkKeywords[j])
+
+		i = deleteMe.Length
+		while i >= 0
+			if deleteMe[i] != none
+				refPlot.ScrapObject(deleteMe[i])
+				while deleteMe[i].Is3DLoaded()
+					Utility.Wait(0.1)
+					Log("waiting for linked ref to scrap: "+deleteMe[i])
+					deleteMe[i].Disable(false)
+				endWhile
+			endIf
+			i -= 1
+		endWhile
+		j -= 1
+	endWhile
+EndFunction
+
 Event SimSettlementsV2:ObjectReferences:SimPlot.PlotLevelChanged(SimSettlementsV2:ObjectReferences:SimPlot akSender, Var[] akArgs)
 	UnregisterForCustomEvent(akSender, "PlotLevelChanged")
 	SimSettlementsV2:Weapons:BuildingLevelPlan thisLevelPlan = waitingBuildingLevelPlan as SimSettlementsV2:Weapons:BuildingLevelPlan
-	Log("Capturing building level plan: "+GetFormKey(thisLevelPlan), false)
-	questMain.TakeScreenshot(GetFormKey(thisLevelPlan))
+
+	;; capture as parent plan
 	if thisLevelPlan.iRequiredLevel == ((thisLevelPlan.ParentBuildingPlan as Form) as SimSettlementsV2:Weapons:BuildingPlan).LevelPlansList.GetSize()
 		Log("Capturing building plan: "+GetFormKey(thisLevelPlan.ParentBuildingPlan), false)
 		questMain.TakeScreenshot(GetFormKey(thisLevelPlan.ParentBuildingPlan))
 	endIf
+
+	;; capture as level plan
+	Log("Capturing building level plan: "+GetFormKey(thisLevelPlan), false)
+	questMain.TakeScreenshot(GetFormKey(thisLevelPlan))
+
+	CleanStageItems(akSender)
+
 	Utility.Wait(0.5)
 	waitingBuildingLevelPlan = none
 EndEvent

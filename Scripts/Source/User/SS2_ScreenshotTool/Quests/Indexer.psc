@@ -110,11 +110,14 @@ Function IndexAddons(bool bForce)
 
 		int i = questMain.SS2Main.RegisteredAddonPacks.GetCount() - 1
 		while i >= 0
+			Log(i+" remaining configs")
 			SimSettlementsV2:ObjectReferences:RegisteredAddonPack thisRegistration = questMain.SS2Main.RegisteredAddonPacks.GetAt(i) as SimSettlementsV2:ObjectReferences:RegisteredAddonPack
 			if thisRegistration && thisRegistration.GetAddonPackConfig() != none
 				IndexAddonConfig(thisRegistration.GetAddonPackConfig())
-				i -= 1
+			else
+				Log(thisRegistration + " is missing config an issue")
 			endIf
+			i -= 1
 		endWhile
 
 		bIndexInProgress = false
@@ -127,6 +130,7 @@ Function IndexAddons(bool bForce)
 EndFunction
 
 Function IndexAddonConfig(SimSettlementsV2:MiscObjects:AddonPackConfiguration thisConfig)
+	Log("AddonConfig: "+thisConfig)
 	if thisConfig.MyItems == none || thisConfig.sAddonFilename == ""
 		return
 	endIf
@@ -139,9 +143,11 @@ Function IndexAddonConfig(SimSettlementsV2:MiscObjects:AddonPackConfiguration th
 EndFunction
 
 Function IndexAddonItemList(FormList thisList)
-	if thisList.GetAt(0) != none	
-		Log("List: "+thisList.GetAt(0))
+	Log("FormList: "+thisList)
+	if thisList.GetAt(0) == none
+		return
 	endIf
+	Log("FLID Keyword: "+thisList.GetAt(0))
 	int i = thisList.GetSize() - 1
 	while i >= 0
 		IndexAddonItem(thisList.GetAt(i))
@@ -151,6 +157,7 @@ EndFunction
 
 Function IndexAddonItem(Form thisItem)
 	string sAddonFilename = System:Form.GetModName(thisItem)
+	Log("Processing "+thisItem+" from "+sAddonFilename)
 
 	; unlockable flags
 	if thisItem as SimSettlementsV2:MiscObjects:UnlockableFlag && (thisItem as SimSettlementsV2:MiscObjects:UnlockableFlag).FlagThemeDefinition != none
@@ -179,30 +186,31 @@ Function IndexAddonItem(Form thisItem)
 		SS2SST_Index_Foundations.AddForm(thisItem)
 		iIndexedItemCount += 1
 		Log("Added Foundation "+thisItem+" from "+sAddonFilename)
-
+	
 	; powerpoles
-	elseif thisItem as SimSettlementsV2:MiscObjects:PowerPole
-		SS2SST_Index_PowerPoles.AddForm(thisItem)
-		iIndexedItemCount += 1
-		Log("Added PowerPole "+thisItem+" from "+sAddonFilename)
+	;elseif thisItem as SimSettlementsV2:MiscObjects:PowerPole
+	;	SS2SST_Index_PowerPoles.AddForm(thisItem)
+	;	iIndexedItemCount += 1
+	;	Log("Added PowerPole "+thisItem+" from "+sAddonFilename)
 
 	; furniture
-	elseif thisItem as SimSettlementsV2:MiscObjects:FurnitureStoreItem
-		SS2SST_Index_Furniture.AddForm(thisItem)
-		iIndexedItemCount += 1
-		Log("Added Furniture "+thisItem+" from "+sAddonFilename)
+	;elseif thisItem as SimSettlementsV2:MiscObjects:FurnitureStoreItem
+	;	SS2SST_Index_Furniture.AddForm(thisItem)
+	;	iIndexedItemCount += 1
+	;	Log("Added Furniture "+thisItem+" from "+sAddonFilename)
 
 	; unique settlers
-	elseif thisItem as SimSettlementsV2:MiscObjects:UnlockableCharacter
-		SS2SST_Index_UniqueSettlers.AddForm(thisItem)
-		iIndexedItemCount += 1
-		Log("Added Unqiue Settler "+thisItem+" from "+sAddonFilename)
+	;elseif thisItem as SimSettlementsV2:MiscObjects:UnlockableCharacter
+	;	SS2SST_Index_UniqueSettlers.AddForm(thisItem)
+	;	iIndexedItemCount += 1
+	;	Log("Added Unqiue Settler "+thisItem+" from "+sAddonFilename)
 
 	; pets
-	elseif thisItem as SimSettlementsV2:MiscObjects:PetStoreCreatureItem
-		SS2SST_Index_Pets.AddForm(thisItem)
-		iIndexedItemCount += 1
-		Log("Added Pet "+thisItem+" from "+sAddonFilename)
+	;elseif thisItem as SimSettlementsV2:MiscObjects:PetStoreCreatureItem
+	;	SS2SST_Index_Pets.AddForm(thisItem)
+	;	iIndexedItemCount += 1
+	;	Log("Added Pet "+thisItem+" from "+sAddonFilename)
+	
 
 	endIf
 EndFunction

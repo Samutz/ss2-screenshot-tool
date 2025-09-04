@@ -32,19 +32,12 @@ EndEvent
 Event OnActivate(ObjectReference akReference)
     if bCaptureStage == 2
         bCaptureStage = 0
-	    ;Debug.Notification("Capture interrupted")
         Log("Capture interrupted")
     elseif bCaptureStage == 1
         bCaptureStage = 0
-	    ;Debug.Notification("Capture canceled")
         Log("Capture canceled")
     else
 		LogCount()
-        ;bCaptureStage = 1
-        ;Utility.Wait(10)
-        ;if bCaptureStage == 1 ; incase canceled during wait
-        ;    BatchCapture()
-        ;endIf
 		PrepContainer()
     endif
 EndEvent
