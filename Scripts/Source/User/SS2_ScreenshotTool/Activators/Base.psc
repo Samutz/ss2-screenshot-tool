@@ -72,16 +72,18 @@ Event ObjectReference.OnItemRemoved(ObjectReference akSender, Form akBaseItem, i
 EndEvent
 
 Event OnMenuOpenCloseEvent(String asMenuName, bool abOpening)
-    if asMenuName == "ContainerMenu" && !abOpening && questMain.ItemsToCaptureFormList.GetSize() > 0
+    if asMenuName == "ContainerMenu" && !abOpening 
 		UnregisterForMenuOpenCloseEvent("ContainerMenu")
 		UnregisterForRemoteEvent(questMain.ItemContainer, "OnItemRemoved")
-        ;Debug.Notification("Capture will begin in 10 seconds")
-        Log("Capture will begin in 10 seconds")
-		bCaptureStage = 1
-        Utility.Wait(10)
-        if bCaptureStage == 1 ; incase canceled during wait
-            BatchCapture()
-        endIf
+		if questMain.ItemsToCaptureFormList.GetSize() > 0
+			;Debug.Notification("Capture will begin in 10 seconds")
+			Log("Capture will begin in 10 seconds")
+			bCaptureStage = 1
+			Utility.Wait(10)
+			if bCaptureStage == 1 ; incase canceled during wait
+				BatchCapture()
+			endIf
+		endIf
     endif
 EndEvent
 

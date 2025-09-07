@@ -96,17 +96,33 @@ Function CleanStageItems(SimSettlementsV2:ObjectReferences:SimPlot refPlot)
 	ObjectReference[] deleteMe = none
 
 	int j = linkKeywords.Length
+	float fTimer = 0.0
+	bool bSkip
 	while j >= 0
 		deleteMe = refPlot.kLinkedRefHolder.GetLinkedRefChildren(linkKeywords[j])
 
 		i = deleteMe.Length
 		while i >= 0
 			if deleteMe[i] != none
+				fTimer = 0.0
+				bSkip = false
 				refPlot.ScrapObject(deleteMe[i])
-				while deleteMe[i].Is3DLoaded()
+				while deleteMe[i].Is3DLoaded() && !bSkip
 					Utility.Wait(0.1)
-					Log("waiting for linked ref to scrap: "+deleteMe[i])
-					deleteMe[i].Disable(false)
+					fTimer += 0.1
+					;Log("waiting for linked ref to scrap: "+deleteMe[i])
+					if (fTimer >= 10.0)
+						deleteMe[i].Disable(false)
+						Log(deleteMe[i] + " not scrapped, disabling")
+					endif
+					if (fTimer >= 20.0)
+						deleteMe[i].Delete()
+						Log(deleteMe[i] + " not scrapped, deleting")
+					endif
+					if (fTimer >= 30.0)
+						bSkip = true
+						Log(deleteMe[i] + " not scrapped, skipping")
+					endif
 				endWhile
 			endIf
 			i -= 1
