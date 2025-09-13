@@ -59,8 +59,7 @@ Function Capture(SimSettlementsV2:Weapons:BuildingPlan thisPlan)
 			;Log("refPlot: "+refPlot, false)
 		endWhile
 
-		;int i = thisPlan.LevelPlansList.GetSize() - 1
-		int i = 2
+		int i = thisPlan.LevelPlansList.GetSize() - 1
 		while i >= 0
 			SimSettlementsV2:Weapons:BuildingLevelPlan thisLevelPlan = thisPlan.LevelPlansList.GetAt(i) as SimSettlementsV2:Weapons:BuildingLevelPlan
 			refPlot.ForcedPlan = thisLevelPlan
@@ -88,9 +87,6 @@ Function CleanStageItems(SimSettlementsV2:ObjectReferences:SimPlot refPlot)
 	linkKeywords[0] = refPlot.StageItemLinkKeyword
 	linkKeywords[1] = refPlot.StageModelLinkKeyword
 	linkKeywords[2] = refPlot.AccessoryLinkKeyword
-	;MultiStageItemKeyword
-	;SecondaryAssignmentMarkerLinkKeyword
-	;IndicatorLinkKeyword
 
 	int i = 0
 	ObjectReference[] deleteMe = none
@@ -110,18 +106,25 @@ Function CleanStageItems(SimSettlementsV2:ObjectReferences:SimPlot refPlot)
 				while deleteMe[i].Is3DLoaded() && !bSkip
 					Utility.Wait(0.1)
 					fTimer += 0.1
-					;Log("waiting for linked ref to scrap: "+deleteMe[i])
-					if (fTimer >= 10.0)
-						deleteMe[i].Disable(false)
-						Log(deleteMe[i] + " not scrapped, disabling")
-					endif
-					if (fTimer >= 20.0)
-						deleteMe[i].Delete()
-						Log(deleteMe[i] + " not scrapped, deleting")
-					endif
-					if (fTimer >= 30.0)
+					if fTimer > 10
+						Log(deleteMe[i] + " still not scrapped, moving")
+						deleteMe[i].SetPosition(deleteMe[i].GetPositionX(), deleteMe[i].GetPositionY(), deleteMe[i].GetPositionZ()-1000)
 						bSkip = true
-						Log(deleteMe[i] + " not scrapped, skipping")
+					elseif fTimer > 7.5
+						if fTimer == 7.5
+							Log(deleteMe[i] + " still not scrapped, deleting")
+						endif
+						deleteMe[i].Delete()
+					elseif fTimer > 5.0
+						if fTimer == 5.0
+							Log(deleteMe[i] + " still not scrapped, disabling")
+						endif
+						deleteMe[i].Disable(false)
+					elseif fTimer > 2.5
+						if fTimer == 2.5
+							Log(deleteMe[i] + " still not scrapped, re-scrapping")
+						endif
+						refPlot.ScrapObject(deleteMe[i])
 					endif
 				endWhile
 			endIf
@@ -133,6 +136,15 @@ EndFunction
 
 Event SimSettlementsV2:ObjectReferences:SimPlot.PlotLevelChanged(SimSettlementsV2:ObjectReferences:SimPlot akSender, Var[] akArgs)
 	UnregisterForCustomEvent(akSender, "PlotLevelChanged")
+	Log("Refreshing "+akSender)
+	CleanStageItems(akSender)
+	RegisterForCustomEvent(akSender, "PlotRefresh")
+	akSender.RefreshPlot()
+EndEvent
+
+Event SimSettlementsV2:ObjectReferences:SimPlot.PlotRefresh(SimSettlementsV2:ObjectReferences:SimPlot akSender, Var[] akArgs)
+	UnregisterForCustomEvent(akSender, "PlotRefresh")
+
 	SimSettlementsV2:Weapons:BuildingLevelPlan thisLevelPlan = waitingBuildingLevelPlan as SimSettlementsV2:Weapons:BuildingLevelPlan
 
 	;; capture as parent plan
