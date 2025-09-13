@@ -99,9 +99,13 @@ EndFunction
 Function IndexAddons(bool bForce)
 	if iIndexedItemCount == 0 || bForce == true
 		
+		int j = 0
 		while !questMain.SS2Main.bAddonProcessingComplete
-			Log("Waiting for SS2Main.bAddonProcessingComplete")
+			if j % 5 == 0
+				Log("Waiting for SS2Main.bAddonProcessingComplete")
+			endIf
 			Utility.Wait(1)
+			j += 1
 		endWhile
 
 		Log("Starting Indexing")
