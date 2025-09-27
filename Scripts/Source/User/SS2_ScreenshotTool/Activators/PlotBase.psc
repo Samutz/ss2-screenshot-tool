@@ -43,6 +43,7 @@ Function BatchCapture()
 EndFunction
 
 Form waitingBuildingLevelPlan
+bool bMaxLevelPlan
 
 Function Capture(SimSettlementsV2:Weapons:BuildingPlan thisPlan)
 	CheckIndexing()
@@ -60,18 +61,22 @@ Function Capture(SimSettlementsV2:Weapons:BuildingPlan thisPlan)
 		endWhile
 
 		int i = thisPlan.LevelPlansList.GetSize() - 1
+		bMaxLevelPlan = true
 		while i >= 0
 			SimSettlementsV2:Weapons:BuildingLevelPlan thisLevelPlan = thisPlan.LevelPlansList.GetAt(i) as SimSettlementsV2:Weapons:BuildingLevelPlan
-			refPlot.ForcedPlan = thisLevelPlan
-			while !refPlot.bPostInitializationStepsComplete
-				Utility.Wait(0.1)
-			endWhile
-			RegisterForCustomEvent(refPlot, "PlotLevelChanged")
-			waitingBuildingLevelPlan = thisLevelPlan as Form
-			refPlot.ForcePlotLevel(thisLevelPlan.iRequiredLevel, -1)
-			while waitingBuildingLevelPlan != none
-				Utility.Wait(0.1)
-			endWhile
+			if thisLevelPlan.iRequiredLevel > 0 && thisLevelPlan.iRequiredLevel < 4
+				refPlot.ForcedPlan = thisLevelPlan
+				while !refPlot.bPostInitializationStepsComplete
+					Utility.Wait(0.1)
+				endWhile
+				RegisterForCustomEvent(refPlot, "PlotLevelChanged")
+				waitingBuildingLevelPlan = thisLevelPlan as Form
+				refPlot.ForcePlotLevel(thisLevelPlan.iRequiredLevel, -1)
+				while waitingBuildingLevelPlan != none
+					Utility.Wait(0.1)
+				endWhile
+				bMaxLevelPlan = false
+			endIf
 			i -= 1
 		endWhile
 
@@ -148,7 +153,7 @@ Event SimSettlementsV2:ObjectReferences:SimPlot.PlotRefresh(SimSettlementsV2:Obj
 	SimSettlementsV2:Weapons:BuildingLevelPlan thisLevelPlan = waitingBuildingLevelPlan as SimSettlementsV2:Weapons:BuildingLevelPlan
 
 	;; capture as parent plan
-	if thisLevelPlan.iRequiredLevel == ((thisLevelPlan.ParentBuildingPlan as Form) as SimSettlementsV2:Weapons:BuildingPlan).LevelPlansList.GetSize()
+	if bMaxLevelPlan
 		Log("Capturing building plan: "+GetFormKey(thisLevelPlan.ParentBuildingPlan), false)
 		questMain.TakeScreenshot(GetFormKey(thisLevelPlan.ParentBuildingPlan))
 	endIf
