@@ -141,26 +141,18 @@ EndFunction
 
 Event SimSettlementsV2:ObjectReferences:SimPlot.PlotLevelChanged(SimSettlementsV2:ObjectReferences:SimPlot akSender, Var[] akArgs)
 	UnregisterForCustomEvent(akSender, "PlotLevelChanged")
-	Log("Refreshing "+akSender)
-	CleanStageItems(akSender)
-	RegisterForCustomEvent(akSender, "PlotRefresh")
-	akSender.RefreshPlot()
-EndEvent
-
-Event SimSettlementsV2:ObjectReferences:SimPlot.PlotRefresh(SimSettlementsV2:ObjectReferences:SimPlot akSender, Var[] akArgs)
-	UnregisterForCustomEvent(akSender, "PlotRefresh")
 
 	SimSettlementsV2:Weapons:BuildingLevelPlan thisLevelPlan = waitingBuildingLevelPlan as SimSettlementsV2:Weapons:BuildingLevelPlan
 
 	;; capture as parent plan
 	if bMaxLevelPlan
-		Log("Capturing building plan: "+GetFormKey(thisLevelPlan.ParentBuildingPlan), false)
-		questMain.TakeScreenshot(GetFormKey(thisLevelPlan.ParentBuildingPlan))
+		Log("Capturing building plan: "+GetFormKey(akSender.ParentBuildingPlan), false)
+		questMain.TakeScreenshot(GetFormKey(akSender.ParentBuildingPlan))
 	endIf
 
 	;; capture as level plan
-	Log("Capturing building level plan: "+GetFormKey(thisLevelPlan), false)
-	questMain.TakeScreenshot(GetFormKey(thisLevelPlan))
+	Log("Capturing building level plan: "+GetFormKey(akSender.CurrentLevelPlan), false)
+	questMain.TakeScreenshot(GetFormKey(akSender.CurrentLevelPlan))
 
 	CleanStageItems(akSender)
 
