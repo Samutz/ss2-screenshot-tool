@@ -178,6 +178,13 @@ Function IndexAddonItem(Form thisItem)
 	elseif thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan && (thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan).BuildingPlan != none
 		IndexAddonItem((thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan).BuildingPlan)
 
+	elseif thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery && (thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery).RegisterForms != none
+		int i = (thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery).RegisterForms.Length
+		while i >= 0
+			IndexAddonItem((thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery).RegisterForms[i].FormToInject)
+			i -= 1
+		endWhile
+
 	; buildingplans
 	elseif thisItem as SimSettlementsV2:Weapons:BuildingPlan
 		IndexBuildingPlan(thisItem as SimSettlementsV2:Weapons:BuildingPlan)
