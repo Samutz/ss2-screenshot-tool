@@ -233,21 +233,8 @@ Function IndexBuildingPlan(SimSettlementsV2:Weapons:BuildingPlan thisItem)
 		SS2SST_Index_BuildingPlans_Agricultural_2x2.AddForm(thisItem)
 	elseif thisItem.HasKeyWord(SS2_PlotSize_3x3)
 		SS2SST_Index_BuildingPlans_Agricultural_3x3.AddForm(thisItem)
-		
-	elseif thisItem.HasKeyWord(SS2_PlotType_Agricultural) && thisItem.HasKeyWord(SS2_PlotSize_Int)
+	elseif thisItem.HasKeyWord(SS2_PlotSize_Int)
 		SS2SST_Index_BuildingPlans_Agricultural_Int.AddForm(thisItem)
-	elseif thisItem.HasKeyWord(SS2_PlotType_Commercial) && thisItem.HasKeyWord(SS2_PlotSize_Int)
-		SS2SST_Index_BuildingPlans_Commercial_Int.AddForm(thisItem)
-	elseif thisItem.HasKeyWord(SS2_PlotType_Industrial) && thisItem.HasKeyWord(SS2_PlotSize_Int)
-		SS2SST_Index_BuildingPlans_Industrial_Int.AddForm(thisItem)
-	elseif thisItem.HasKeyWord(SS2_PlotType_Martial) && thisItem.HasKeyWord(SS2_PlotSize_Int)
-		SS2SST_Index_BuildingPlans_Martial_Int.AddForm(thisItem)
-	elseif thisItem.HasKeyWord(SS2_PlotType_Municipal) && thisItem.HasKeyWord(SS2_PlotSize_Int)
-		SS2SST_Index_BuildingPlans_Municipal_Int.AddForm(thisItem)
-	elseif thisItem.HasKeyWord(SS2_PlotType_Recreational) && thisItem.HasKeyWord(SS2_PlotSize_Int)
-		SS2SST_Index_BuildingPlans_Recreational_Int.AddForm(thisItem)
-	elseif thisItem.HasKeyWord(SS2_PlotType_Residential) && thisItem.HasKeyWord(SS2_PlotSize_Int)
-		SS2SST_Index_BuildingPlans_Residential_Int.AddForm(thisItem)
 
 	endif
 EndFunction
