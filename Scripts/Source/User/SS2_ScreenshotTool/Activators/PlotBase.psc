@@ -2,7 +2,26 @@ scriptname SS2_ScreenshotTool:Activators:PlotBase extends SS2_ScreenshotTool:Act
 
 import WorkshopFramework:Library:DataStructures
 
-WorldObject Property SS2_Plot_Activator Auto Const Mandatory
+Group PlotTypeKeywords
+	Keyword Property SS2_PlotType_Agricultural Auto Const Mandatory
+	Keyword Property SS2_PlotType_Commercial Auto Const Mandatory
+	Keyword Property SS2_PlotType_Industrial Auto Const Mandatory
+	Keyword Property SS2_PlotType_Martial Auto Const Mandatory
+	Keyword Property SS2_PlotType_Municipal Auto Const Mandatory
+	Keyword Property SS2_PlotType_Recreational Auto Const Mandatory
+	Keyword Property SS2_PlotType_Residential Auto Const Mandatory
+EndGroup
+
+Group PlotTypeActivators
+	WorldObject Property SS2_Plot_Agr_Activator Auto Const Mandatory
+	WorldObject Property SS2_Plot_Com_Activator Auto Const Mandatory
+	WorldObject Property SS2_Plot_Ind_Activator Auto Const Mandatory
+	WorldObject Property SS2_Plot_Mar_Activator Auto Const Mandatory
+	WorldObject Property SS2_Plot_Mun_Activator Auto Const Mandatory
+	WorldObject Property SS2_Plot_Rec_Activator Auto Const Mandatory
+	WorldObject Property SS2_Plot_Res_Activator Auto Const Mandatory
+EndGroup
+
 FormList Property Index_FormList Auto Const Mandatory
 
 string sLogPrefix = "Activators:PlotBase"
@@ -52,6 +71,24 @@ Function Capture(SimSettlementsV2:Weapons:BuildingPlan thisPlan)
 		
 		string sFormkey = GetFormKey(thisPlan as Form)
 		Log("Spawning Plan: "+sFormkey, false)
+
+		WorldObject SS2_Plot_Activator = SS2_Plot_Agr_Activator
+
+		if thisPlan.HasKeyWord(SS2_PlotType_Agricultural)
+			SS2_Plot_Activator = SS2_Plot_Agr_Activator
+		elseif thisPlan.HasKeyWord(SS2_PlotType_Commercial)
+			SS2_Plot_Activator = SS2_Plot_Com_Activator
+		elseif thisPlan.HasKeyWord(SS2_PlotType_Industrial)
+			SS2_Plot_Activator = SS2_Plot_Ind_Activator
+		elseif thisPlan.HasKeyWord(SS2_PlotType_Martial)
+			SS2_Plot_Activator = SS2_Plot_Mar_Activator
+		elseif thisPlan.HasKeyWord(SS2_PlotType_Municipal)
+			SS2_Plot_Activator = SS2_Plot_Mun_Activator
+		elseif thisPlan.HasKeyWord(SS2_PlotType_Recreational)
+			SS2_Plot_Activator = SS2_Plot_Rec_Activator
+		elseif thisPlan.HasKeyWord(SS2_PlotType_Residential)
+			SS2_Plot_Activator = SS2_Plot_Res_Activator
+		endIf
 
 		SimSettlementsV2:ObjectReferences:SimPlot refPlot = WorkshopFramework:WSFW_API.CreateSettlementObject(SS2_Plot_Activator, refWorkshop, Self) as SimSettlementsV2:ObjectReferences:SimPlot
 
