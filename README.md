@@ -22,5 +22,6 @@ If papyrus logging is enabled for FO4, the tool outputs various information to S
 * SS2 and WSFW script sources are also needed to compile  
 * [Fallout 4 Script Extender](https://www.nexusmods.com/fallout4/mods/42147)  
 * [Address Library for F4SE Plugins](https://www.nexusmods.com/fallout4/mods/47327)
+* [SUP F4SE](https://www.nexusmods.com/fallout4/mods/55419)
 * [Papyrus Common Library](https://www.nexusmods.com/fallout4/mods/86222)  
 * [Garden of Eden Papyrus Script Extender](https://www.nexusmods.com/fallout4/mods/74160)
