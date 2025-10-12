@@ -13,16 +13,6 @@ Group PlotSizeKeywords
 	Keyword Property SS2_PlotSize_Int Auto Const Mandatory
 EndGroup
 
-Group PlotTypeKeywords
-	Keyword Property SS2_PlotType_Agricultural Auto Const Mandatory
-	Keyword Property SS2_PlotType_Commercial Auto Const Mandatory
-	Keyword Property SS2_PlotType_Industrial Auto Const Mandatory
-	Keyword Property SS2_PlotType_Martial Auto Const Mandatory
-	Keyword Property SS2_PlotType_Municipal Auto Const Mandatory
-	Keyword Property SS2_PlotType_Recreational Auto Const Mandatory
-	Keyword Property SS2_PlotType_Residential Auto Const Mandatory
-EndGroup
-
 Group IndexFormLists
 	FormList Property SS2SST_Index_Flags Auto Mandatory
 	FormList Property SS2SST_Index_Foundations Auto Mandatory
@@ -37,30 +27,6 @@ Group IndexFormListsBuildingPlans
 	FormList Property SS2SST_Index_BuildingPlans_Agricultural_2x2 Auto Mandatory
 	FormList Property SS2SST_Index_BuildingPlans_Agricultural_3x3 Auto Mandatory
 	FormList Property SS2SST_Index_BuildingPlans_Agricultural_Int Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Commercial_1x1 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Commercial_2x2 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Commercial_3x3 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Commercial_Int Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Industrial_1x1 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Industrial_2x2 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Industrial_3x3 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Industrial_Int Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Martial_1x1 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Martial_2x2 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Martial_3x3 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Martial_Int Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Municipal_1x1 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Municipal_2x2 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Municipal_3x3 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Municipal_Int Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Recreational_1x1 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Recreational_2x2 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Recreational_3x3 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Recreational_Int Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Residential_1x1 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Residential_2x2 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Residential_3x3 Auto Mandatory
-	FormList Property SS2SST_Index_BuildingPlans_Residential_Int Auto Mandatory
 EndGroup
 
 bool Property bIndexInProgress = false Auto Hidden
@@ -95,6 +61,10 @@ EndFunction
 ;; --------------------------------------------------
 ;; Indexing Functions
 ;; --------------------------------------------------
+
+Function ReIndex()
+	IndexAddons(true)
+EndFunction
 
 Function IndexAddons(bool bForce)
 	if iIndexedItemCount == 0 || bForce == true
@@ -161,7 +131,7 @@ EndFunction
 
 Function IndexAddonItem(Form thisItem)
 	string sAddonFilename = System:Form.GetModName(thisItem)
-	Log("Processing "+thisItem+" from "+sAddonFilename)
+	;Log("Processing "+thisItem+" from "+sAddonFilename)
 
 	; unlockable flags
 	if thisItem as SimSettlementsV2:MiscObjects:UnlockableFlag && (thisItem as SimSettlementsV2:MiscObjects:UnlockableFlag).FlagThemeDefinition != none
@@ -178,6 +148,7 @@ Function IndexAddonItem(Form thisItem)
 	elseif thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan && (thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan).BuildingPlan != none
 		IndexAddonItem((thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan).BuildingPlan)
 
+	; settler discovery items
 	elseif thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery && (thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery).RegisterForms != none
 		int i = (thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery).RegisterForms.Length
 		while i >= 0
@@ -235,7 +206,6 @@ Function IndexBuildingPlan(SimSettlementsV2:Weapons:BuildingPlan thisItem)
 		SS2SST_Index_BuildingPlans_Agricultural_3x3.AddForm(thisItem)
 	elseif thisItem.HasKeyWord(SS2_PlotSize_Int)
 		SS2SST_Index_BuildingPlans_Agricultural_Int.AddForm(thisItem)
-
 	endif
 EndFunction
 
@@ -250,28 +220,4 @@ Function RevertAll()
 	SS2SST_Index_BuildingPlans_Agricultural_2x2.Revert()
 	SS2SST_Index_BuildingPlans_Agricultural_3x3.Revert()
 	SS2SST_Index_BuildingPlans_Agricultural_Int.Revert()
-	SS2SST_Index_BuildingPlans_Commercial_1x1.Revert()
-	SS2SST_Index_BuildingPlans_Commercial_2x2.Revert()
-	SS2SST_Index_BuildingPlans_Commercial_3x3.Revert()
-	SS2SST_Index_BuildingPlans_Commercial_Int.Revert()
-	SS2SST_Index_BuildingPlans_Industrial_1x1.Revert()
-	SS2SST_Index_BuildingPlans_Industrial_2x2.Revert()
-	SS2SST_Index_BuildingPlans_Industrial_3x3.Revert()
-	SS2SST_Index_BuildingPlans_Industrial_Int.Revert()
-	SS2SST_Index_BuildingPlans_Martial_1x1.Revert()
-	SS2SST_Index_BuildingPlans_Martial_2x2.Revert()
-	SS2SST_Index_BuildingPlans_Martial_3x3.Revert()
-	SS2SST_Index_BuildingPlans_Martial_Int.Revert()
-	SS2SST_Index_BuildingPlans_Municipal_1x1.Revert()
-	SS2SST_Index_BuildingPlans_Municipal_2x2.Revert()
-	SS2SST_Index_BuildingPlans_Municipal_3x3.Revert()
-	SS2SST_Index_BuildingPlans_Municipal_Int.Revert()
-	SS2SST_Index_BuildingPlans_Recreational_1x1.Revert()
-	SS2SST_Index_BuildingPlans_Recreational_2x2.Revert()
-	SS2SST_Index_BuildingPlans_Recreational_3x3.Revert()
-	SS2SST_Index_BuildingPlans_Recreational_Int.Revert()
-	SS2SST_Index_BuildingPlans_Residential_1x1.Revert()
-	SS2SST_Index_BuildingPlans_Residential_2x2.Revert()
-	SS2SST_Index_BuildingPlans_Residential_3x3.Revert()
-	SS2SST_Index_BuildingPlans_Residential_Int.Revert()
 EndFunction
