@@ -132,6 +132,13 @@ Form Function GetWorldObjectForm(WorldObject thisWorldObject2)
 	return thisForm
 EndFunction
 
+Form Function GetUniversalFormBaseForm(UniversalForm thisUniversalForm)
+	if thisUniversalForm.BaseForm != none
+		return thisUniversalForm.BaseForm
+	endif
+	return Game.GetFormFromFile(thisUniversalForm.iFormID, thisUniversalForm.sPluginName)
+EndFunction
+
 Function BatchCapture()
     ; stub
 EndFunction
