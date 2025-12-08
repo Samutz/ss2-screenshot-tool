@@ -42,27 +42,11 @@ EndFunction
 
 Function Capture(SimSettlementsV2:Armors:ThemeDefinition_Flags thisForm)
 	CheckIndexing()
-	
-	;; capture shot for main record
-	if thisForm.FlagWall != none
-		string sFormkey = GetFormKey(thisForm as Form)
-		Log("Capturing flag: "+sFormkey, false)
-
-		thisWorldObject.ObjectForm = thisForm.FlagWall
-
-		ObjectReference refObj = WorkshopFramework:WSFW_API.CreateSettlementObject(thisWorldObject, refWorkshop)
-		questMain.TakeScreenshot(sFormkey)
-		WorkshopFramework:WSFW_API.RemoveSettlementObject(refObj)
-		Utility.Wait(0.5)
-	else
-		Log("Flag is missing FlagWall property: "+thisForm, false)
-	endIf
-
-	;; capture shot for model record
-	CaptureModel(thisForm.FlagWall)
+	string sFormkey = GetFormKey(thisForm as Form)
+	CaptureModel(thisForm.FlagWall, sFormkey)
 EndFunction
 
-Function CaptureModel(Form flagModel)
+Function CaptureModel(Form flagModel, string mainRecord = "")
 	if flagModel != none
 		string sFormkey = GetFormKey(flagModel)
 		Log("Capturing flag: "+sFormkey, false)
@@ -71,6 +55,9 @@ Function CaptureModel(Form flagModel)
 
 		ObjectReference refObj = WorkshopFramework:WSFW_API.CreateSettlementObject(thisWorldObject, refWorkshop)
 		questMain.TakeScreenshot(sFormkey)
+		if mainRecord != ""
+			questMain.TakeScreenshot(mainRecord)
+		endif
 		WorkshopFramework:WSFW_API.RemoveSettlementObject(refObj)
 		Utility.Wait(0.5)
 	else
