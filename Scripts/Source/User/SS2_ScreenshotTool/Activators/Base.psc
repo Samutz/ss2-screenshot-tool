@@ -19,6 +19,8 @@ int Property bCaptureStage = 0 Auto Hidden
 ; 0 = idle, 1 = pending, 2 = capturing
 FormList Property sourceFormList Auto Hidden
 
+bool waitingForItemTransfer = false
+
 Event OnWorkshopObjectPlaced(ObjectReference akReference)
 	refWorkshop = akReference as WorkshopScript
     SetWorldObject()
@@ -72,12 +74,21 @@ Event ObjectReference.OnItemRemoved(ObjectReference akSender, Form akBaseItem, i
 EndEvent
 
 Event OnMenuOpenCloseEvent(String asMenuName, bool abOpening)
+	int sizeCheck = questMain.ItemsToCaptureFormList.GetSize()
+	waitingForItemTransfer = true
+	while waitingForItemTransfer
+		sizeCheck = questMain.ItemsToCaptureFormList.GetSize()
+		Utility.Wait(5)
+		if sizeCheck == questMain.ItemsToCaptureFormList.GetSize()
+			waitingForItemTransfer = false
+		endif
+	endWhile
     if asMenuName == "ContainerMenu" && !abOpening 
 		UnregisterForMenuOpenCloseEvent("ContainerMenu")
 		UnregisterForRemoteEvent(questMain.ItemContainer, "OnItemRemoved")
 		if questMain.ItemsToCaptureFormList.GetSize() > 0
 			;Debug.Notification("Capture will begin in 10 seconds")
-			Log("Capture will begin in 10 seconds")
+			Log("Capturing "+questMain.ItemsToCaptureFormList.GetSize()+" items. Starting in 10 seconds.")
 			bCaptureStage = 1
 			Utility.Wait(10)
 			if bCaptureStage == 1 ; incase canceled during wait
