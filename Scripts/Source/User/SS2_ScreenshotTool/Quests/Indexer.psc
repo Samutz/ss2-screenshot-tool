@@ -19,6 +19,7 @@ Group IndexFormLists
 	FormList Property SS2SST_Index_PowerPoles Auto Mandatory
 	FormList Property SS2SST_Index_Furniture Auto Mandatory
 	FormList Property SS2SST_Index_UniqueSettlers Auto Mandatory
+	FormList Property SS2SST_Index_LeaderCards Auto Mandatory
 	FormList Property SS2SST_Index_Pets Auto Mandatory
 EndGroup
 
@@ -182,10 +183,16 @@ Function IndexAddonItem(Form thisItem)
 	;	Log("Added Furniture "+thisItem+" from "+sAddonFilename)
 
 	; unique settlers
-	;elseif thisItem as SimSettlementsV2:MiscObjects:UnlockableCharacter
-	;	SS2SST_Index_UniqueSettlers.AddForm(thisItem)
-	;	iIndexedItemCount += 1
-	;	Log("Added Unqiue Settler "+thisItem+" from "+sAddonFilename)
+	elseif thisItem as SimSettlementsV2:MiscObjects:UnlockableCharacter
+		SS2SST_Index_UniqueSettlers.AddForm(thisItem)
+		iIndexedItemCount += 1
+		Log("Added Unqiue Settler "+thisItem+" from "+sAddonFilename)
+
+	; city leaders
+	elseif thisItem as SimSettlementsV2:Weapons:LeaderCard
+		SS2SST_Index_LeaderCards.AddForm(thisItem)
+		iIndexedItemCount += 1
+		Log("Added Leader Card "+thisItem+" from "+sAddonFilename)
 
 	; pets
 	;elseif thisItem as SimSettlementsV2:MiscObjects:PetStoreCreatureItem
