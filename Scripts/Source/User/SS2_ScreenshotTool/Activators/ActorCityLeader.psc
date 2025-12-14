@@ -28,9 +28,9 @@ Function BatchCapture()
 	
 	forcedFurniture = PlaceAtMe(MannequinFurniture, 1, false, false, true)
 
-	int i = sourceFormList.GetSize() - 1
+	int i = questMain.ItemsToCaptureFormList.GetSize() - 1
 	while i >= 0 && bCaptureStage == 2
-		Capture(sourceFormList.GetAt(i) as SimSettlementsV2:Weapons:LeaderCard)
+		Capture(questMain.ItemsToCaptureFormList.GetAt(i) as SimSettlementsV2:Weapons:LeaderCard)
 		if i % 10 == 0 ; only do every 10 since notifications are slower than the time spent on each item
 			Log(i +" remaining")
 		endif
@@ -69,14 +69,11 @@ Function CaptureModel(SimSettlementsV2:Weapons:LeaderCard thisForm)
 			Utility.Wait(0.1)
 		endwhile
 
+		refObj.StartCombat(Game.GetPlayer(), true)
 		refObj.SnapIntoInteraction(forcedFurniture)
         refObj.SetRestrained(true)
 
 		Utility.Wait(1) ;; sometimes they are still fading in at this point, and Enable(false) isn't working
-
-		;refObj.SetHeadTracking(true)
-        ;refObj.BlockActivation(true, false)
-        ;refObj.SetGhost(true)
 
 		questMain.TakeScreenshot(sFormkey)
 		refObj.Disable(false)

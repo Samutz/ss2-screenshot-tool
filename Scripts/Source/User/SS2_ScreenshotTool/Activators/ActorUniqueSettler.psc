@@ -86,14 +86,11 @@ Function CaptureModel(SimSettlementsV2:MiscObjects:UnlockableCharacter thisForm)
 			Utility.Wait(0.1)
 		endwhile
 
+		refObj.StartCombat(Game.GetPlayer(), true)
 		refObj.SnapIntoInteraction(forcedFurniture)
         refObj.SetRestrained(true)
 
 		Utility.Wait(1) ;; sometimes they are still fading in at this point, and Enable(false) isn't working
-
-		;refObj.SetHeadTracking(true)
-        ;refObj.BlockActivation(true, false)
-        ;refObj.SetGhost(true)
 
 		questMain.TakeScreenshot(sFormkey)
 		refObj.Disable(false)
