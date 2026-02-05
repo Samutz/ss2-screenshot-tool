@@ -149,14 +149,6 @@ Function IndexAddonItem(Form thisItem)
 	elseif thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan && (thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan).BuildingPlan != none
 		IndexAddonItem((thisItem as SimSettlementsV2:MiscObjects:UnlockableBuildingPlan).BuildingPlan)
 
-	; settler discovery items
-	elseif thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery && (thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery).RegisterForms != none
-		int i = (thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery).RegisterForms.Length
-		while i >= 0
-			IndexAddonItem((thisItem as simsettlementsv2:miscobjects:settlerlocationdiscovery).RegisterForms[i].FormToInject)
-			i -= 1
-		endWhile
-
 	; buildingplans
 	elseif thisItem as SimSettlementsV2:Weapons:BuildingPlan
 		IndexBuildingPlan(thisItem as SimSettlementsV2:Weapons:BuildingPlan)
@@ -200,6 +192,14 @@ Function IndexAddonItem(Form thisItem)
 	;	iIndexedItemCount += 1
 	;	Log("Added Pet "+thisItem+" from "+sAddonFilename)
 	
+	; unlockable generic
+	; this should always be last as some above unloackables extend from SimSettlementsV2:MiscObjects:Unlockable
+	elseif thisItem as SimSettlementsV2:MiscObjects:Unlockable
+		int i = (thisItem as simsettlementsv2:miscobjects:Unlockable).RegisterForms.Length
+		while i >= 0
+			IndexAddonItem((thisItem as simsettlementsv2:miscobjects:Unlockable).RegisterForms[i].FormToInject)
+			i -= 1
+		endWhile
 
 	endIf
 EndFunction
