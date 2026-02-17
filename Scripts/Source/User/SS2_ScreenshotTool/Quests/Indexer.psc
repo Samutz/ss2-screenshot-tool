@@ -63,12 +63,16 @@ EndFunction
 ;; Indexing Functions
 ;; --------------------------------------------------
 
-Function ReIndex()
-	IndexAddons(true)
+Function ReIndex(string sAddonFileName = "")
+	IndexAddons(true, sAddonFileName)
 EndFunction
 
-Function IndexAddons(bool bForce)
+Function IndexAddons(bool bForce, string sAddonFileName = "")
 	if iIndexedItemCount == 0 || bForce == true
+
+		if sAddonFileName != ""
+			Log("Indexing specified addon: "+sAddonFileName)
+		endIf
 		
 		int j = 0
 		while !questMain.SS2Main.bAddonProcessingComplete
@@ -88,9 +92,11 @@ Function IndexAddons(bool bForce)
 			Log(i+" remaining configs")
 			SimSettlementsV2:ObjectReferences:RegisteredAddonPack thisRegistration = questMain.SS2Main.RegisteredAddonPacks.GetAt(i) as SimSettlementsV2:ObjectReferences:RegisteredAddonPack
 			if thisRegistration && thisRegistration.GetAddonPackConfig() != none
-				IndexAddonConfig(thisRegistration.GetAddonPackConfig())
+				if sAddonFileName == "" || thisRegistration.GetAddonPackConfig().sAddonFileName == sAddonFileName
+					IndexAddonConfig(thisRegistration.GetAddonPackConfig())
+				endIf
 			else
-				Log(thisRegistration + " is missing config an issue")
+				Log(thisRegistration + " is missing config")
 			endIf
 			i -= 1
 		endWhile
